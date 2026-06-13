@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+
+  *,
+  *::before,
+  *::after {
+    border-color: oklch(0.269 0 0);
+  }
+}
