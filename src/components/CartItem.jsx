@@ -1,4 +1,4 @@
-const finishLabels = { nonfoil: 'Nonfoil', foil: 'Foil' }
+const finishLabels = { nonfoil: 'Normal', foil: 'Foil' }
 
 export default function CartItem({ item, onUpdateQuantity, onRemove }) {
   const price = item.finish === 'foil'
@@ -31,7 +31,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }) {
           <button
             onClick={() => onRemove(item.id, item.finish)}
             className="shrink-0 rounded p-0.5 text-zinc-600 transition-colors hover:text-rose-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/40"
-            aria-label={`Remove ${item.name} from cart`}
+            aria-label={`Quitar ${item.name} del carrito`}
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -48,7 +48,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }) {
             <button
               onClick={() => onUpdateQuantity(item.id, item.finish, item.quantity - 1)}
               className="flex h-7 w-7 items-center justify-center text-zinc-500 transition-colors hover:text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
-              aria-label={`Decrease quantity of ${item.name}`}
+              aria-label={`Reducir cantidad de ${item.name}`}
             >
               <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                 <path strokeLinecap="round" d="M5 12h14" />
@@ -60,7 +60,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }) {
             <button
               onClick={() => onUpdateQuantity(item.id, item.finish, item.quantity + 1)}
               className="flex h-7 w-7 items-center justify-center text-zinc-500 transition-colors hover:text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
-              aria-label={`Increase quantity of ${item.name}`}
+              aria-label={`Aumentar cantidad de ${item.name}`}
             >
               <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                 <path strokeLinecap="round" d="M12 5v14m7-7H5" />

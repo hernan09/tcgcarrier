@@ -6,7 +6,7 @@ const rarityColors = {
 }
 
 const finishLabels = {
-  nonfoil: 'Nonfoil',
+  nonfoil: 'Normal',
   foil: 'Foil',
 }
 
@@ -23,7 +23,7 @@ export default function CardCard({ card, onAddToCart, onSelect }) {
       onKeyDown={e => { if (e.key === 'Enter') onSelect(card) }}
       tabIndex={0}
       role="button"
-      aria-label={`View ${card.name} details`}
+      aria-label={`Ver detalles de ${card.name}`}
     >
       <div className="relative aspect-[5/7] overflow-hidden bg-zinc-800/50">
         {image ? (
@@ -64,7 +64,7 @@ export default function CardCard({ card, onAddToCart, onSelect }) {
             <button
               onClick={e => { e.stopPropagation(); onAddToCart(card, 'nonfoil') }}
               className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-800/50 px-3 py-2 text-xs transition-colors hover:border-indigo-500/40 hover:bg-indigo-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
-              aria-label={`Add ${card.name} nonfoil to cart`}
+              aria-label={`Agregar ${card.name} normal al carrito`}
             >
               <span className="text-zinc-400">{finishLabels.nonfoil}</span>
               <span className="font-mono font-medium text-zinc-200">
@@ -76,7 +76,7 @@ export default function CardCard({ card, onAddToCart, onSelect }) {
             <button
               onClick={e => { e.stopPropagation(); onAddToCart(card, 'foil') }}
               className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-800/50 px-3 py-2 text-xs transition-colors hover:border-amber-500/40 hover:bg-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
-              aria-label={`Add ${card.name} foil to cart`}
+              aria-label={`Agregar ${card.name} foil al carrito`}
             >
               <span className="flex items-center gap-1 text-zinc-400">
                 <svg className="h-3 w-3 text-amber-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

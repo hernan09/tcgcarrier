@@ -7,7 +7,7 @@ const rarityColors = {
   mythic: 'text-rose-400',
 }
 
-const finishLabels = { nonfoil: 'Nonfoil', foil: 'Foil' }
+const finishLabels = { nonfoil: 'Normal', foil: 'Foil' }
 
 export default function CardModal({ card, onClose, onAddToCart }) {
   useEffect(() => {
@@ -31,7 +31,7 @@ export default function CardModal({ card, onClose, onAddToCart }) {
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label={`${card.name} details`}
+      aria-label={`Detalles de ${card.name}`}
     >
       <div
         className="relative mx-auto flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl shadow-black/50 sm:flex-row max-sm:max-h-[90vh] max-sm:w-[90vw]"
@@ -40,7 +40,7 @@ export default function CardModal({ card, onClose, onAddToCart }) {
         <button
           onClick={onClose}
           className="absolute right-2 top-2 z-10 rounded-lg border border-zinc-800 bg-zinc-950/80 p-1.5 text-zinc-500 backdrop-blur-sm transition-colors hover:text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 sm:right-3 sm:top-3 sm:rounded-xl sm:p-2"
-          aria-label="Close details"
+          aria-label="Cerrar detalles"
         >
           <svg className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -105,7 +105,7 @@ export default function CardModal({ card, onClose, onAddToCart }) {
           )}
 
           {card.loyalty && (
-            <p className="text-xs text-zinc-400 sm:text-sm">Loyalty: {card.loyalty}</p>
+            <p className="text-xs text-zinc-400 sm:text-sm">Lealtad: {card.loyalty}</p>
           )}
 
           <div className="flex flex-col gap-1.5 pt-2 border-t border-zinc-800 sm:gap-2">
@@ -113,7 +113,7 @@ export default function CardModal({ card, onClose, onAddToCart }) {
               <button
                 onClick={() => { onAddToCart(card, 'nonfoil'); onClose() }}
                 className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-800/50 px-3 py-2 text-xs transition-colors hover:border-indigo-500/40 hover:bg-indigo-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 sm:rounded-xl sm:px-4 sm:py-3 sm:text-sm"
-                aria-label={`Add ${card.name} nonfoil to cart`}
+                aria-label={`Agregar ${card.name} normal al carrito`}
               >
                 <span className="text-zinc-400">{finishLabels.nonfoil}</span>
                 <span className="font-mono font-semibold text-zinc-200">${price.toFixed(2)}</span>
@@ -123,7 +123,7 @@ export default function CardModal({ card, onClose, onAddToCart }) {
               <button
                 onClick={() => { onAddToCart(card, 'foil'); onClose() }}
                 className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-800/50 px-3 py-2 text-xs transition-colors hover:border-amber-500/40 hover:bg-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 sm:rounded-xl sm:px-4 sm:py-3 sm:text-sm"
-                aria-label={`Add ${card.name} foil to cart`}
+                aria-label={`Agregar ${card.name} foil al carrito`}
               >
                 <span className="flex items-center gap-1.5 text-zinc-400">
                   <svg className="h-3.5 w-3.5 text-amber-400 sm:h-4 sm:w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

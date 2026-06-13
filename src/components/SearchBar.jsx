@@ -29,7 +29,7 @@ export default function SearchBar({ query, onQueryChange, loading }) {
         spellCheck={false}
         value={query}
         onChange={e => onQueryChange(e.target.value)}
-        placeholder="Search Magic cards…"
+        placeholder="Buscar cartas de Magic…"
         className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 py-3.5 pl-12 pr-4 text-sm text-zinc-100 placeholder-zinc-500 backdrop-blur-sm transition-all focus:border-indigo-500/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
       />
     </div>

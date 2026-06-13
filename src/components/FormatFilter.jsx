@@ -10,7 +10,7 @@ const FORMATS = [
 
 export default function FormatFilter({ selected, onSelect }) {
   return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Card format filter">
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Filtro de formato">
       {FORMATS.map(f => (
         <button
           key={f.id}

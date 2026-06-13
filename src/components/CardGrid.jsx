@@ -8,7 +8,7 @@ export default function CardGrid({ cards, loading, error, hasMore, onLoadMore, o
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
         </svg>
         <p className="text-sm text-zinc-400">{error}</p>
-        <p className="mt-1 text-xs text-zinc-600">Try a different search term</p>
+        <p className="mt-1 text-xs text-zinc-600">Prueba con otro término de búsqueda</p>
       </div>
     )
   }
@@ -37,8 +37,8 @@ export default function CardGrid({ cards, loading, error, hasMore, onLoadMore, o
         <svg className="mb-4 h-16 w-16 text-zinc-700" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
         </svg>
-        <h3 className="text-lg font-medium text-zinc-400">No cards found</h3>
-        <p className="mt-1 text-sm text-zinc-600">Try searching for a card name or keyword</p>
+        <h3 className="text-lg font-medium text-zinc-400">No se encontraron cartas</h3>
+        <p className="mt-1 text-sm text-zinc-600">Busca por nombre de carta o palabra clave</p>
       </div>
     )
   }
@@ -63,10 +63,10 @@ export default function CardGrid({ cards, loading, error, hasMore, onLoadMore, o
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                Loading…
+                Cargando…
               </>
             ) : (
-              'Load more cards'
+              'Cargar más cartas'
             )}
           </button>
         </div>
