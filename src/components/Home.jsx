@@ -441,7 +441,7 @@ function StepCard({ step, index, isActive, onToggle, sectionInView }) {
   )
 }
 
-function CTASection({ onStartSearching }) {
+function CTASection({ onStartGame }) {
   const [ref, inView] = useInView(0.3)
 
   return (
@@ -454,16 +454,16 @@ function CTASection({ onStartSearching }) {
         inView ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
       }`}>
         <h2 className="mb-4 bg-gradient-to-r from-indigo-300 via-purple-200 to-indigo-300 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl">
-          ¿Listo para Explorar?
+          ¿Listo para Jugar?
         </h2>
         <p className="mb-8 text-zinc-400">
-          Busca miles de cartas de Magic, filtra por formato y construye tu colección perfecta.
+          Practicá con lecciones interactivas paso a paso. Aprendé mientras jugás, sin presiones.
         </p>
         <button
-          onClick={onStartSearching}
+          onClick={onStartGame}
           className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-indigo-600/25 transition-all hover:bg-indigo-500 hover:shadow-indigo-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/50"
         >
-          Buscar Cartas
+          Practicar Ahora
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
           </svg>
@@ -473,7 +473,7 @@ function CTASection({ onStartSearching }) {
   )
 }
 
-export default function Home({ onStartSearching }) {
+export default function Home({ onStartGame }) {
   return (
     <div className="min-h-screen">
       <HeroSection
@@ -485,7 +485,7 @@ export default function Home({ onStartSearching }) {
       <HowToPlay />
       <CardTypesSection />
       <MetaDeckSection />
-      <CTASection onStartSearching={onStartSearching} />
+      <CTASection onStartGame={onStartGame} />
     </div>
   )
 }

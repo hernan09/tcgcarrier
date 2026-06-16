@@ -14,6 +14,10 @@ const API_CARD_NAMES = {
   'Lobo de Plata': 'Silvercoat Lion',
   'Crecimiento Gigante': 'Giant Growth',
   'Goblin Rezagado': 'Raging Goblin',
+  'Slickshot Show-Off': 'Slickshot Show-Off',
+  'Lightning Strike': 'Lightning Strike',
+  'Cancelar': 'Cancel',
+  'Garra Ígnea': 'Shivan Dragon',
 }
 
 function getApiCardName(cardName) {
@@ -236,7 +240,7 @@ function ZonePile({ type, count, side = 'player', entrance = true, imageUrl }) {
   return (
     <div className={`relative flex flex-col items-center gap-1 transition-all duration-500 ${entrance ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
       style={{ animationDelay: `${side === 'player' ? 300 : 150}ms` }}>
-      <div className="relative h-16 w-11 sm:h-20 sm:w-14">
+      <div className="relative h-16 w-11 sm:h-20 sm:w-14 max-sm:h-10 max-sm:w-[26px]">
         <div className={`absolute inset-0 rounded-md border ${borderColor} bg-gradient-to-b from-zinc-900 to-zinc-950 rotate-6 translate-x-1`} />
         <div className={`absolute inset-0 rounded-md border ${borderColor} bg-gradient-to-b from-zinc-900 to-zinc-950 -rotate-3 -translate-x-0.5`} />
         <div className={`absolute inset-0 rounded-md border-2 ${borderColor} overflow-hidden`}>
@@ -279,10 +283,10 @@ function GameCard({ card, size = 'normal', onClick, highlighted, faceDown, attac
   const cc = colorConfig[card.color] || colorConfig.B
 
   const sizeClasses = size === 'hand'
-    ? 'w-[130px] h-[180px] cursor-pointer'
+    ? 'w-[130px] h-[180px] max-sm:w-[80px] max-sm:h-[112px] cursor-pointer'
     : size === 'board'
-    ? 'w-[110px] h-[150px]'
-    : 'w-[100px] h-[140px]'
+    ? 'w-[110px] h-[150px] max-sm:w-[70px] max-sm:h-[100px]'
+    : 'w-[100px] h-[140px] max-sm:w-[66px] max-sm:h-[94px]'
 
   const handleClick = useCallback(() => {
     if (!onClick) return
@@ -309,10 +313,10 @@ function GameCard({ card, size = 'normal', onClick, highlighted, faceDown, attac
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
           </svg>
           <span className="text-[10px] font-semibold tracking-wider">MAZO</span>
-        </div>
       </div>
-    )
-  }
+    </div>
+  )
+}
 
   const isTapped = card.tapped
   const isHighlighted = highlighted
@@ -442,7 +446,7 @@ function GameCardSmall({ card, onClick, highlighted, attacking, tooltipMessage, 
           onClick ? 'hover:scale-110 hover:shadow-xl hover:shadow-yellow-500/20 hover:-translate-y-4 hover:z-50 cursor-pointer' : ''
         } ${
           visible ? (useAnim ? 'animate-slide-up-card-small' : 'opacity-100') : 'opacity-0 translate-y-6'
-        } w-[90px] h-[130px]`}
+        }           w-[90px] h-[130px] max-sm:w-[60px] max-sm:h-[86px]`}
         style={useAnim ? { animationDelay: animDelay } : {}}
       >
         <div className="absolute inset-0 rounded-lg overflow-hidden">
@@ -510,8 +514,8 @@ function LessonMenu({ onSelect, onBack }) {
               style={{ animation: `fadeInUp 0.5s ease-out forwards`, animationDelay: `${li * 150}ms` }}
             >
               <div className="mb-4 flex items-center gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${lesson.colorBg === 'bg-emerald-500/10' ? 'from-emerald-500/20 to-emerald-600/20' : 'from-red-500/20 to-orange-600/20'} border ${lesson.colorBorder}`}>
-                  <span className="text-lg">{lesson.id === 'selva-embrujada' ? '\u{1F33F}' : '\u{1F525}'}</span>
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${lesson.colorBg === 'bg-emerald-500/10' ? 'from-emerald-500/20 to-emerald-600/20' : lesson.colorBg === 'bg-indigo-500/10' ? 'from-indigo-500/20 to-blue-600/20' : 'from-red-500/20 to-orange-600/20'} border ${lesson.colorBorder}`}>
+                  <span className="text-lg">{lesson.id === 'selva-embrujada' ? '\u{1F33F}' : lesson.id === 'reflejos-azules' ? '\u{1F30A}' : '\u{1F525}'}</span>
                 </div>
                 <div>
                   <h3 className={`text-lg font-bold ${lesson.colorText}`}>{lesson.title}</h3>
@@ -556,6 +560,113 @@ function LessonMenu({ onSelect, onBack }) {
   )
 }
 
+function DrawRevealCard({ cardName }) {
+  const cc = colorConfig[cardName === 'Bosque' || cardName === 'Llanura' || cardName === 'Montaña' || cardName === 'Isla' ? 'land' : cardName.includes('Show-Off') ? 'R' : 'G'] || colorConfig.B
+  const { url: imageUrl, status: imageStatus } = useCardImage(cardName)
+
+  return (
+    <div className="relative h-full w-full overflow-hidden">
+      <div className={`absolute inset-0 bg-gradient-to-br ${cc.from} ${cc.to} transition-opacity duration-300 ${imageStatus === 'loaded' ? 'opacity-0' : 'opacity-100'}`} />
+      {imageUrl && (
+        <div
+          className={`absolute inset-0 bg-cover bg-center transition-all duration-500 ${imageStatus === 'loaded' ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+          style={{ backgroundImage: `url(${imageUrl})` }}
+        />
+      )}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+      <div className="relative z-10 flex h-full flex-col items-center justify-between p-1.5">
+        <div className="flex items-center gap-1 mt-1">
+          <span className="text-[8px] font-bold bg-black/40 backdrop-blur-sm rounded px-1.5 py-0.5 text-yellow-400 leading-tight">
+            +1
+          </span>
+        </div>
+        <p className="text-[9px] font-bold text-center text-white drop-shadow-lg leading-tight px-1">
+          {cardName}
+        </p>
+      </div>
+      <div className="absolute top-0 right-0 -mt-1 -mr-1 flex h-5 w-5 items-center justify-center rounded-full bg-yellow-400 text-[9px] font-bold text-zinc-900 shadow-lg animate-pulse">
+        ✦
+      </div>
+    </div>
+  )
+}
+
+function getAllCards(state) {
+  return [
+    ...(state.playerHand || []),
+    ...(state.playerBoard || []),
+    ...(state.opponentBoard || []),
+    ...(state.opponentGraveyard || []),
+    ...(state.playerGraveyard || []),
+  ]
+}
+
+function PopupCard({ card }) {
+  const { url: imageUrl, status: imageStatus } = useCardImage(card.name)
+  const cc = colorConfig[card.color === 'land' ? 'land' : card.color] || colorConfig.B
+
+  return (
+    <div className={`relative w-28 h-40 rounded-xl border-2 overflow-hidden animate-pulse shadow-lg shadow-indigo-500/30 ${cc.border}`}>
+      <div className={`absolute inset-0 bg-gradient-to-br ${cc.from} ${cc.to} transition-opacity duration-300 ${imageStatus === 'loaded' ? 'opacity-0' : 'opacity-100'}`} />
+      {imageUrl && (
+        <div
+          className={`absolute inset-0 bg-cover bg-center transition-all duration-500 ${imageStatus === 'loaded' ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+          style={{ backgroundImage: `url(${imageUrl})` }}
+        />
+      )}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+      <div className="relative z-10 flex h-full flex-col items-center justify-between p-2">
+        {card.power != null && (
+          <div className="flex items-center gap-1 mt-1">
+            <span className="text-[10px] font-bold bg-black/40 backdrop-blur-sm rounded px-1.5 py-0.5 text-yellow-400">
+              {card.power}/{card.toughness}
+            </span>
+          </div>
+        )}
+        <p className="text-[10px] font-bold text-center text-white drop-shadow-lg leading-tight px-1">
+          {card.name}
+        </p>
+      </div>
+      <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-yellow-400 text-[9px] font-bold text-zinc-900 shadow-lg animate-ping opacity-75">
+        ✦
+      </div>
+    </div>
+  )
+}
+
+function InteractionPopup({ popup, cards, onDismiss }) {
+  useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDismiss() } }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [onDismiss])
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md px-4" onClick={onDismiss}>
+      <div className="animate-in zoom-in-95 duration-200 rounded-2xl border border-zinc-700/80 bg-zinc-900/95 p-5 sm:p-6 max-w-sm w-full shadow-2xl shadow-indigo-500/10 backdrop-blur-xl" onClick={e => e.stopPropagation()}>
+        {popup.title && (
+          <h3 className="text-base font-bold text-indigo-300 mb-3 text-center leading-tight">{popup.title}</h3>
+        )}
+
+        <div className="flex justify-center gap-4 mb-4">
+          {cards.map((card, i) => (
+            <PopupCard key={card.id || i} card={card} />
+          ))}
+        </div>
+
+        <p className="text-sm text-zinc-300 text-center leading-relaxed">{popup.description}</p>
+
+        <button
+          onClick={onDismiss}
+          className="mt-4 w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-all hover:shadow-lg hover:shadow-indigo-600/25 active:scale-[0.98]"
+        >
+          Continuar
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner }) {
   const scene = lesson.scenes[sceneIdx]
   const { state } = scene
@@ -567,14 +678,52 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner }) {
   const isClickBoard = interaction.type === 'click_board'
 
   const prevCardIdsRef = useRef(new Set())
+  const libraryRef = useRef(null)
+
+  const [drawAnim, setDrawAnim] = useState({ phase: 'idle', card: null })
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640)
+  const [selectedCardId, setSelectedCardId] = useState(null)
 
   useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 640)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  useEffect(() => {
+    setSelectedCardId(null)
     const ids = new Set()
     state.playerHand.forEach(c => ids.add(c.id))
     state.playerBoard.forEach(c => ids.add(c.id))
     state.opponentBoard.forEach(c => ids.add(c.id))
     prevCardIdsRef.current = ids
-  })
+  }, [sceneIdx])
+
+  useEffect(() => {
+    if (scene.phase.includes('Inicio') && sceneIdx > 0) {
+      const prevScene = lesson.scenes[sceneIdx - 1]
+      const prevIds = new Set(prevScene.state.playerHand.map(c => c.id))
+      const newCards = state.playerHand.filter(c => !prevIds.has(c.id))
+
+      if (newCards.length > 0) {
+        const card = newCards[0]
+        setDrawAnim({ phase: 'flying', card })
+
+        const t1 = setTimeout(() => {
+          setDrawAnim(prev => ({ ...prev, phase: 'flipping' }))
+        }, 900)
+
+        const t2 = setTimeout(() => {
+          setDrawAnim({ phase: 'idle', card: null })
+        }, 1600)
+
+        return () => {
+          clearTimeout(t1)
+          clearTimeout(t2)
+        }
+      }
+    }
+  }, [sceneIdx])
 
   function getCardAnim(cardId) {
     if (sceneIdx === 0) return entrance
@@ -600,19 +749,19 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner }) {
         visible={phaseBanner.visible}
         instruction={phaseBanner.instruction}
       />
-      <div className="battlefield-wood flex-1 px-2 py-2 sm:px-4 sm:py-3 flex flex-col overflow-y-auto">
+      <div className="battlefield-magic flex-1 px-2 py-2 sm:px-4 sm:py-3 flex flex-col overflow-y-auto">
         {/* Top bar */}
-        <div className={`mb-2 flex items-center justify-between rounded-xl border border-zinc-700/50 bg-zinc-950/70 backdrop-blur-sm px-3 py-1.5 sm:px-4 sm:py-2 transition-all duration-500 ${boardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3'}`}>
-          <div className="flex items-center gap-2">
-            <span className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${
+        <div className={`mb-1.5 sm:mb-2 flex items-center justify-between rounded-xl border border-zinc-700/50 bg-zinc-950/70 backdrop-blur-sm px-2 py-1 sm:px-4 sm:py-2 transition-all duration-500 ${boardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3'}`}>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className={`rounded-md px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold ${
               isLessonComplete
                 ? 'bg-emerald-500/20 text-emerald-400'
                 : 'bg-indigo-500/20 text-indigo-300'
             }`}>
               {scene.phase}
             </span>
-            <span className="hidden text-[10px] text-zinc-500 sm:inline">
-              Paso {sceneIdx + 1} de {lesson.scenes.length}
+            <span className="text-[9px] sm:text-[10px] text-zinc-500">
+              Paso {sceneIdx + 1}/{lesson.scenes.length}
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -649,7 +798,7 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner }) {
             </div>
           </div>
           {state.opponentBoard.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 justify-center mb-2 pl-1">
+            <div className="flex flex-wrap gap-1 sm:gap-1.5 justify-center mb-1.5 pl-1">
               {state.opponentBoard.map((card) => (
                 <GameCardSmall key={card.id} card={card} visible={true} animate={getCardAnim(card.id)} delay={75} />
               ))}
@@ -658,12 +807,12 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner }) {
         </div>
 
         {/* Divider */}
-        <div className={`relative my-2 transition-all duration-500 delay-150 ${boardVisible ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`relative my-1.5 sm:my-2 transition-all duration-500 delay-150 ${boardVisible ? 'opacity-100' : 'opacity-0'}`}>
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-amber-900/30" />
           </div>
           <div className="relative flex justify-center">
-            <span className="battlefield-field bg-zinc-950/60 backdrop-blur-sm px-4 py-1 text-[10px] font-bold text-amber-600/80 uppercase tracking-[0.2em] rounded-full border border-amber-900/20">
+            <span className="battlefield-field bg-zinc-950/60 backdrop-blur-sm px-3 py-0.5 text-[9px] sm:text-[10px] font-bold text-amber-600/80 uppercase tracking-[0.2em] rounded-full border border-amber-900/20">
               CAMPO DE BATALLA
             </span>
           </div>
@@ -672,7 +821,7 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner }) {
         {/* Player side */}
         <div className={`mb-2 transition-all duration-500 delay-200 ${boardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
           {state.playerBoard.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 justify-center mb-2 pl-1">
+            <div className="flex flex-wrap gap-1 sm:gap-1.5 justify-center mb-1.5 pl-1">
               {state.playerBoard.map((card) => {
                 const isHighlighted = isClickBoard && interaction.highlightIds?.includes(card.id)
                 return (
@@ -691,24 +840,28 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner }) {
             </div>
           )}
           {/* Player zones row: library/graveyard + hand */}
-          <div className="flex items-end justify-center gap-3 mt-2">
-            <div className="flex items-center gap-2">
+          <div className="flex items-end justify-center gap-2 sm:gap-3 mt-1.5">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <ZonePile type="library" count={playerDeckCount} side="player" entrance={boardVisible} imageUrl={CARD_BACK_URL} />
               <ZonePile type="graveyard" count={playerGraveyardCount} side="player" entrance={boardVisible} imageUrl={playerGraveUrl} />
             </div>
-            <div className="flex justify-center items-end py-2 overflow-visible px-2 sm:px-8">
+            <div className="flex justify-center items-end py-2 overflow-visible px-2 sm:px-8 max-sm:px-0">
               {state.playerHand.map((card, i, arr) => {
                 const isHighlighted = isClickHand && interaction.highlightIds?.includes(card.id)
                 const total = arr.length
                 const mid = (total - 1) / 2
                 const offset = i - mid
-                const rotation = offset * 3
-                const zIdx = total - Math.abs(Math.round(offset))
-                const overlapPx = total <= 3 ? 56 : total <= 4 ? 44 : total <= 5 ? 36 : 28
+                const baseRotation = isMobile && total > 5 ? 2.5 : 3
+                const rotation = offset * baseRotation
+                const isSelected = selectedCardId === card.id
+                const zIdx = isSelected ? 999 : total - Math.abs(Math.round(offset))
+                const baseOverlap = total <= 3 ? 56 : total <= 4 ? 44 : total <= 5 ? 36 : 28
+                const overlapPx = isMobile ? baseOverlap + 10 : baseOverlap
+                const lift = isSelected ? '-translate-y-4 sm:-translate-y-6' : ''
                 return (
                   <div
                     key={card.id}
-                    className="relative shrink-0"
+                    className={`relative shrink-0 transition-transform duration-200 ${lift}`}
                     style={{
                       marginLeft: i === 0 ? 0 : `-${overlapPx}px`,
                       zIndex: zIdx,
@@ -719,7 +872,14 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner }) {
                     <GameCard
                       card={card}
                       size="hand"
-                      onClick={isHighlighted ? () => onCardClick(card.id, 'hand') : null}
+                      onClick={() => {
+                        if (isHighlighted) {
+                          setSelectedCardId(null)
+                          onCardClick(card.id, 'hand')
+                        } else {
+                          setSelectedCardId(selectedCardId === card.id ? null : card.id)
+                        }
+                      }}
                       highlighted={isHighlighted}
                       tooltipMessage={isHighlighted ? getTooltipMessage(card, 'click_hand') : null}
                       visible={true}
@@ -732,6 +892,33 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner }) {
             </div>
           </div>
         </div>
+
+        {/* Draw animation overlay */}
+        {drawAnim.phase !== 'idle' && drawAnim.card && (
+          <div className="fixed inset-0 z-[999] pointer-events-none flex items-center justify-center">
+            <div className={`
+              w-[100px] h-[140px] max-sm:w-[72px] max-sm:h-[102px] rounded-xl border-[3px] overflow-hidden shadow-2xl
+              ${drawAnim.phase === 'flying'
+                ? 'animate-card-fly border-amber-500/40 shadow-amber-500/30'
+                : 'animate-card-flip border-yellow-400/60 shadow-yellow-400/40'
+              }
+            `}>
+              {drawAnim.phase === 'flying' ? (
+                <div className="relative flex h-full w-full items-center justify-center bg-gradient-to-b from-zinc-800 to-zinc-900">
+                  <div className="absolute inset-2 rounded-lg border-2 border-dashed border-amber-600/30" />
+                  <div className="flex flex-col items-center gap-2">
+                    <svg className="h-8 w-8 text-amber-500/80" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                    </svg>
+                    <span className="text-[8px] font-bold text-amber-600/80 uppercase tracking-widest">Robando</span>
+                  </div>
+                </div>
+              ) : (
+                <DrawRevealCard cardName={drawAnim.card.name} />
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Player life + progress bar */}
         <div className={`mt-auto pt-2 transition-all duration-500 delay-300 ${boardVisible ? 'opacity-100' : 'opacity-0'}`}>
@@ -832,6 +1019,7 @@ export default function GameDemo({ onBack }) {
   const [advancing, setAdvancing] = useState(false)
   const [transitioning, setTransitioning] = useState(false)
   const [phaseBanner, setPhaseBanner] = useState({ visible: false, phase: '', instruction: '' })
+  const [popupData, setPopupData] = useState(null)
   const advanceTimer = useRef(null)
   const prevPhaseRef = useRef('')
 
@@ -861,18 +1049,6 @@ export default function GameDemo({ onBack }) {
     if (s.interaction.type === 'button' && !last) return true
     return false
   }, [])
-
-  useEffect(() => {
-    if (!scene || !lesson) return
-    const isLastScene = sceneIdx >= lesson.scenes.length - 1
-    if (shouldAuto(scene, isLastScene)) {
-      const delay = scene.interaction.type === 'auto'
-        ? (scene.interaction.delay || 2000)
-        : 2500
-      advanceTimer.current = setTimeout(() => advance(), delay)
-      return () => clearTimeout(advanceTimer.current)
-    }
-  }, [sceneIdx, scene, lesson, advance, shouldAuto])
 
   useEffect(() => {
     if (!scene) return
@@ -933,6 +1109,38 @@ export default function GameDemo({ onBack }) {
     setSceneIdx(0)
   }, [])
 
+  const dismissPopup = useCallback(() => {
+    setPopupData(null)
+  }, [])
+
+  useEffect(() => {
+    if (!lesson) { setPopupData(null); return }
+    const s = lesson.scenes[sceneIdx]
+    if (!s) { setPopupData(null); return }
+    if (s.popup) {
+      const cardIds = s.popup.cardIds || []
+      const allCards = getAllCards(s.state)
+      const cards = cardIds.map(id => allCards.find(c => c.id === id)).filter(Boolean)
+      if (cards.length > 0) {
+        setPopupData({ popup: s.popup, cards })
+        return
+      }
+    }
+    setPopupData(null)
+  }, [sceneIdx, lesson])
+
+  useEffect(() => {
+    if (!scene || !lesson || popupData) return
+    const isLastScene = sceneIdx >= lesson.scenes.length - 1
+    if (shouldAuto(scene, isLastScene)) {
+      const delay = scene.interaction.type === 'auto'
+        ? (scene.interaction.delay || 2000)
+        : 2500
+      advanceTimer.current = setTimeout(() => advance(), delay)
+      return () => clearTimeout(advanceTimer.current)
+    }
+  }, [sceneIdx, scene, lesson, advance, shouldAuto, popupData])
+
   if (!lesson) {
     return <LessonMenu onSelect={handleSelectLesson} onBack={onBack} />
   }
@@ -949,15 +1157,16 @@ export default function GameDemo({ onBack }) {
 
       {/* Bottom tutorial panel */}
       <div className={`sticky bottom-0 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur-xl transition-opacity duration-300 ${transitioning ? 'opacity-50' : 'opacity-100'}`}>
-        <div className="mx-auto max-w-4xl px-3 py-3 sm:px-4 sm:py-4">
-          {scene.tip && (
-            <div className="mb-2 flex items-start gap-1.5 rounded-lg border border-amber-500/20 bg-amber-500/10 px-2.5 py-1.5">
-              <span className="mt-0.5 shrink-0 text-xs">{String.fromCodePoint(0x1F4A1)}</span>
-              <p className="text-[11px] leading-relaxed text-amber-200/80">{scene.tip}</p>
+        <div className="mx-auto max-w-4xl px-3 py-2 sm:px-4 sm:py-4 max-sm:px-1.5 max-sm:py-1.5">
+          <div className="space-y-1.5 sm:space-y-2">
+            {scene.tip && (
+            <div className="mb-1.5 sm:mb-2 flex items-start gap-1 rounded-lg border border-amber-500/20 bg-amber-500/10 px-2 py-1 sm:px-2.5 sm:py-1.5 max-sm:px-1.5 max-sm:py-0.5">
+              <span className="mt-0.5 shrink-0 text-[11px] text-amber-400">💡</span>
+              <p className="text-[11px] leading-relaxed text-amber-200/80 max-sm:text-[9px] max-sm:leading-snug">{scene.tip}</p>
             </div>
-          )}
+            )}
 
-          <p className="text-sm leading-relaxed text-zinc-300 whitespace-pre-line">
+          <p className="text-sm leading-relaxed text-zinc-300 whitespace-pre-line max-sm:text-[11px] max-sm:leading-snug">
             {scene.instruction
               .replace(/\*\*(.+?)\*\*/g, '<strong class="text-indigo-300 font-semibold">$1</strong>')
               .split('\n').map((line, i) => (
@@ -967,6 +1176,7 @@ export default function GameDemo({ onBack }) {
                 </span>
               ))}
           </p>
+          </div>
 
           <div className="mt-3 flex items-center justify-between gap-3">
             <button
@@ -1029,6 +1239,14 @@ export default function GameDemo({ onBack }) {
           </div>
         </div>
       </div>
+
+      {popupData && (
+        <InteractionPopup
+          popup={popupData.popup}
+          cards={popupData.cards}
+          onDismiss={dismissPopup}
+        />
+      )}
     </div>
   )
 }
