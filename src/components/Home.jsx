@@ -109,7 +109,7 @@ function HeroSection({ onExplore }) {
         </div>
 
         <h1 className="mb-4 bg-gradient-to-r from-indigo-300 via-purple-200 to-indigo-300 bg-clip-text text-5xl font-extrabold leading-tight text-transparent sm:text-6xl md:text-7xl">
-          TCG Carrier
+          MTG
         </h1>
 
         <div className="h-8 sm:h-10">
