@@ -591,6 +591,29 @@ function DrawRevealCard({ cardName }) {
   )
 }
 
+function AttackFly({ card, damage }) {
+  const cc = colorConfig[card.color === 'land' ? 'land' : card.color] || colorConfig.B
+  const { url: imageUrl, status: imageStatus } = useCardImage(card.name)
+
+  return (
+    <div className="fixed inset-0 z-[997] pointer-events-none flex items-center justify-center">
+      <div className="animate-card-attack absolute bottom-[32%] left-1/2 w-[90px] h-[126px] max-sm:w-[64px] max-sm:h-[90px] rounded-xl border-[3px] overflow-hidden shadow-2xl shadow-red-500/30 border-red-500/50">
+        <div className={`absolute inset-0 bg-gradient-to-br ${cc.from} ${cc.to} transition-opacity duration-300 ${imageStatus === 'loaded' ? 'opacity-0' : 'opacity-100'}`} />
+        {imageUrl && (
+          <div
+            className={`absolute inset-0 bg-cover bg-center transition-all duration-500 ${imageStatus === 'loaded' ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+            style={{ backgroundImage: `url(${imageUrl})` }}
+          />
+        )}
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="absolute bottom-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-lg">
+          {damage}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function getAllCards(state) {
   return [
     ...(state.playerHand || []),
@@ -667,7 +690,7 @@ function InteractionPopup({ popup, cards, onDismiss }) {
   )
 }
 
-function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner }) {
+function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, hitVisible }) {
   const scene = lesson.scenes[sceneIdx]
   const { state } = scene
   const isLessonComplete = scene.phase === 'Lección Completada'
@@ -711,11 +734,11 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner }) {
 
         const t1 = setTimeout(() => {
           setDrawAnim(prev => ({ ...prev, phase: 'flipping' }))
-        }, 900)
+        }, 1500)
 
         const t2 = setTimeout(() => {
           setDrawAnim({ phase: 'idle', card: null })
-        }, 1600)
+        }, 2800)
 
         return () => {
           clearTimeout(t1)
@@ -751,7 +774,7 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner }) {
       />
       <div className="battlefield-magic flex-1 px-2 py-2 sm:px-4 sm:py-3 flex flex-col overflow-y-auto">
         {/* Top bar */}
-        <div className={`mb-1.5 sm:mb-2 flex items-center justify-between rounded-xl border border-zinc-700/50 bg-zinc-950/70 backdrop-blur-sm px-2 py-1 sm:px-4 sm:py-2 transition-all duration-500 ${boardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3'}`}>
+        <div className={`relative mb-1.5 sm:mb-2 flex items-center justify-between rounded-xl border border-zinc-700/50 bg-zinc-950/70 backdrop-blur-sm px-2 py-1 sm:px-4 sm:py-2 transition-all duration-500 ${boardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3'}`}>
           <div className="flex items-center gap-1.5 sm:gap-2">
             <span className={`rounded-md px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold ${
               isLessonComplete
@@ -764,14 +787,14 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner }) {
               Paso {sceneIdx + 1}/{lesson.scenes.length}
             </span>
           </div>
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            <svg className="h-4 w-4 text-red-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+            <span className={`text-sm font-bold text-red-400 tabular-nums ${hitVisible && attackAnim?.type === 'direct' ? 'animate-life-recoil' : ''}`}>{state.opponentLife}</span>
+          </div>
           <div className="flex items-center gap-3">
             <span className="hidden text-xs text-zinc-500 sm:inline">P. {sceneIdx + 1}/{lesson.scenes.length}</span>
-            <div className="flex items-center gap-1.5">
-              <svg className="h-4 w-4 text-red-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
-              <span className="text-sm font-bold text-red-400 tabular-nums">{state.opponentLife}</span>
-            </div>
           </div>
         </div>
 
@@ -1020,7 +1043,10 @@ export default function GameDemo({ onBack }) {
   const [transitioning, setTransitioning] = useState(false)
   const [phaseBanner, setPhaseBanner] = useState({ visible: false, phase: '', instruction: '' })
   const [popupData, setPopupData] = useState(null)
+  const [attackAnim, setAttackAnim] = useState(null)
+  const [hitVisible, setHitVisible] = useState(false)
   const advanceTimer = useRef(null)
+  const pendingAttackRef = useRef(null)
   const prevPhaseRef = useRef('')
 
   const scene = lesson?.scenes[sceneIdx]
@@ -1031,6 +1057,25 @@ export default function GameDemo({ onBack }) {
     clearTimeout(advanceTimer.current)
     setAdvancing(true)
     setTransitioning(true)
+
+    const cur = lesson.scenes[sceneIdx]
+    const next = lesson.scenes[sceneIdx + 1]
+    if (next && cur.interaction.type === 'click_board') {
+      const cardId = cur.interaction.highlightIds?.[0]
+      const card = cardId ? cur.state.playerBoard.find(c => c.id === cardId) : null
+      if (card) {
+        const oppLifeDrop = cur.state.opponentLife - next.state.opponentLife
+        const deadOpp = cur.state.opponentBoard.find(
+          oc => !next.state.opponentBoard.some(nc => nc.id === oc.id)
+        )
+        if (oppLifeDrop > 0) {
+          pendingAttackRef.current = { card, damage: oppLifeDrop, type: 'direct' }
+        } else if (deadOpp) {
+          pendingAttackRef.current = { card, damage: card.power || 0, type: 'combat' }
+        }
+      }
+    }
+
     setTimeout(() => {
       setSceneIdx(i => {
         if (i < lesson.scenes.length - 1) {
@@ -1041,7 +1086,7 @@ export default function GameDemo({ onBack }) {
       setAdvancing(false)
       setTimeout(() => setTransitioning(false), 100)
     }, 400)
-  }, [advancing, lesson])
+  }, [advancing, lesson, sceneIdx])
 
   const shouldAuto = useCallback((s, last) => {
     if (!s) return false
@@ -1111,6 +1156,20 @@ export default function GameDemo({ onBack }) {
 
   const dismissPopup = useCallback(() => {
     setPopupData(null)
+    if (pendingAttackRef.current) {
+      const attack = pendingAttackRef.current
+      pendingAttackRef.current = null
+      setAttackAnim(attack)
+      if (attack.type === 'combat') {
+        setTimeout(() => setHitVisible(true), 200)
+      } else {
+        setTimeout(() => setHitVisible(true), 950)
+      }
+      setTimeout(() => {
+        setAttackAnim(null)
+        setHitVisible(false)
+      }, 1500)
+    }
   }, [])
 
   useEffect(() => {
@@ -1153,6 +1212,7 @@ export default function GameDemo({ onBack }) {
         sceneIdx={sceneIdx}
         onCardClick={handleCardClick}
         phaseBanner={phaseBanner}
+        hitVisible={hitVisible}
       />
 
       {/* Bottom tutorial panel */}
@@ -1239,6 +1299,21 @@ export default function GameDemo({ onBack }) {
           </div>
         </div>
       </div>
+
+      {attackAnim && attackAnim.type !== 'combat' && (
+        <AttackFly card={attackAnim.card} damage={attackAnim.damage} />
+      )}
+
+      {hitVisible && (
+        <div className={`fixed inset-0 z-[998] pointer-events-none flex ${attackAnim?.type === 'combat' ? 'items-center justify-center' : 'items-start justify-center pt-[7%]'}`}>
+          <div className="absolute w-48 h-48 rounded-full bg-gradient-to-r from-red-500/20 to-orange-500/10 animate-hit-flash" />
+          <div className="absolute w-20 h-20 rounded-full border-[3px] border-red-400/80 animate-hit-ring" />
+          <div className="absolute w-36 h-36 rounded-full border-2 border-red-400/40 animate-hit-ring" style={{ animationDelay: '0.08s' }} />
+          <div className="absolute pt-4 flex items-center gap-2 animate-hit-damage">
+            <span className="text-4xl sm:text-5xl font-black text-red-400 drop-shadow-[0_0_25px_rgba(239,68,68,0.9)]">-{attackAnim?.damage}</span>
+          </div>
+        </div>
+      )}
 
       {popupData && (
         <InteractionPopup
