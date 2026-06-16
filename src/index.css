@@ -12,3 +12,99 @@
     border-color: oklch(0.269 0 0);
   }
 }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUpCard {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideUpCardSmall {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(250, 204, 21, 0.3), 0 0 20px rgba(250, 204, 21, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(250, 204, 21, 0.6), 0 0 40px rgba(250, 204, 21, 0.2);
+  }
+}
+
+@keyframes zoneAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.battlefield-wood {
+  background-color: #1a1410;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(255, 255, 255, 0.012) 3px,
+      rgba(255, 255, 255, 0.012) 4px
+    ),
+    repeating-linear-gradient(
+      87deg,
+      rgba(139, 90, 43, 0.04) 0px,
+      rgba(139, 90, 43, 0.04) 30px,
+      rgba(101, 67, 33, 0.06) 30px,
+      rgba(101, 67, 33, 0.06) 60px,
+      rgba(160, 110, 60, 0.03) 60px,
+      rgba(160, 110, 60, 0.03) 90px
+    ),
+    radial-gradient(ellipse at 50% 50%, rgba(60, 40, 25, 0.3) 0%, transparent 70%);
+}
+
+.battlefield-field {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(30, 60, 40, 0.15) 0%, transparent 70%);
+}
+
+.animate-slide-up-card {
+  animation: slideUpCard 0.5s ease-out forwards;
+}
+
+.animate-slide-up-card-small {
+  animation: slideUpCardSmall 0.4s ease-out forwards;
+}
+
+.animate-glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.animate-zone-appear {
+  animation: zoneAppear 0.4s ease-out forwards;
+}
