@@ -92,49 +92,36 @@ export default function CardTypesSection() {
                         </span>
                       ))}
                     </div>
+                    {i === activeType && (
+                      <div className="mt-3 sm:hidden" style={{ animation: 'fadeSlideCard 0.8s ease-out both' }}>
+                        <img
+                          src={`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(type.cards[0])}&format=image`}
+                          alt={type.cards[0]}
+                          className="mx-auto w-28 rounded-lg border border-zinc-700/50 shadow-lg"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </button>
             ))}
           </div>
 
-          <div className="space-y-4">
-            <div className={`rounded-2xl border ${CARD_TYPES[activeType].borderColor} overflow-hidden transition-all duration-500`}>
-              <div className="aspect-[5/7] bg-zinc-800/50">
-                {loadedImages[CARD_TYPES[activeType].cards[0]] ? (
-                  <img
-                    src={loadedImages[CARD_TYPES[activeType].cards[0]]}
-                    alt={CARD_TYPES[activeType].cards[0]}
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <svg className="h-8 w-8 animate-spin text-zinc-600" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-              <div className={`border-t ${CARD_TYPES[activeType].borderColor} p-3`}>
-                <p className="text-center text-sm font-medium text-zinc-300">{CARD_TYPES[activeType].cards[0]}</p>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              {CARD_TYPES[activeType].cards.slice(1).map((cardName, i) => (
-                <div
-                  key={cardName}
-                  className="flex-1 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/60"
-                  style={{ animation: `fadeSlideUp 0.3s ease-out ${i * 0.1}s both` }}
-                >
+          <div className="flex flex-row flex-nowrap items-stretch justify-center gap-3">
+            {CARD_TYPES[activeType].cards.map((cardName, i) => (
+              <div
+                key={cardName}
+                className="group w-28 shrink-0 sm:w-36"
+                style={{ animation: `fadeSlideCard 0.8s ease-out ${i * 0.2}s both` }}
+              >
+                <div className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900/60 transition-all duration-300 group-hover:border-zinc-700 group-hover:shadow-xl">
                   <div className="aspect-[5/7] bg-zinc-800/50">
                     {loadedImages[cardName] ? (
                       <img
                         src={loadedImages[cardName]}
                         alt={cardName}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
                       />
                     ) : (
@@ -146,9 +133,12 @@ export default function CardTypesSection() {
                       </div>
                     )}
                   </div>
+                  <div className={`border-t border-zinc-800 p-2`}>
+                    <p className="text-center text-[11px] font-medium text-zinc-300 leading-tight">{cardName}</p>
+                  </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -187,8 +177,8 @@ export default function CardTypesSection() {
       </div>
 
       <style>{`
-        @keyframes fadeSlideUp {
-          from { opacity: 0; transform: translateY(10px); }
+        @keyframes fadeSlideCard {
+          from { opacity: 0; transform: translateY(12px); }
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>

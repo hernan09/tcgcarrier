@@ -192,6 +192,17 @@ function ColorCard({ color, index, isActive, onClick }) {
           {color.mechanics.split(',')[1]}
         </span>
       </div>
+
+      {isActive && (
+        <div className="mt-4 sm:hidden" style={{ animation: 'fadeSlideCard 0.8s ease-out both' }}>
+          <img
+            src={`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(color.cards[0])}&format=image`}
+            alt={color.cards[0]}
+            className="mx-auto w-28 rounded-lg border border-zinc-700/50 shadow-lg"
+            loading="lazy"
+          />
+        </div>
+      )}
     </button>
   )
 }
@@ -289,14 +300,14 @@ function ColorCarousel() {
           </button>
         </div>
 
-        <div className={`mt-12 grid gap-6 sm:grid-cols-3 ${inView ? '' : 'opacity-0'}`}>
+        <div className={`mt-6 flex flex-row flex-nowrap items-stretch justify-center gap-3 overflow-x-auto pb-2 ${inView ? '' : 'opacity-0'}`}>
           {COLORS[activeIndex].cards.map((cardName, i) => (
             <div
               key={cardName}
-              className="group"
-              style={{ animation: `fadeSlideUp 0.5s ease-out ${i * 0.15}s both` }}
+              className="group w-28 shrink-0 sm:w-36"
+              style={{ animation: `fadeSlideCard 0.8s ease-out ${i * 0.2}s both` }}
             >
-              <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/60 transition-all duration-300 group-hover:border-zinc-700 group-hover:shadow-xl">
+              <div className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900/60 transition-all duration-300 group-hover:border-zinc-700 group-hover:shadow-xl">
                 <div className="aspect-[5/7] bg-zinc-800/50">
                   {loadedImages[cardName] ? (
                     <img
@@ -307,15 +318,15 @@ function ColorCarousel() {
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center">
-                      <svg className="h-8 w-8 animate-spin text-zinc-600" viewBox="0 0 24 24" fill="none">
+                      <svg className="h-6 w-6 animate-spin text-zinc-600" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
                     </div>
                   )}
                 </div>
-                <div className="border-t border-zinc-800 p-3">
-                  <p className="text-center text-sm font-medium text-zinc-300">{cardName}</p>
+                <div className="border-t border-zinc-800 p-2">
+                  <p className="text-center text-[11px] font-medium text-zinc-300 leading-tight">{cardName}</p>
                 </div>
               </div>
             </div>
@@ -324,8 +335,8 @@ function ColorCarousel() {
       </div>
 
       <style>{`
-        @keyframes fadeSlideUp {
-          from { opacity: 0; transform: translateY(20px); }
+        @keyframes fadeSlideCard {
+          from { opacity: 0; transform: translateY(12px); }
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
