@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { COLORS, HOW_TO_PLAY_STEPS } from '../data/mtgColors'
 import CardTypesSection from './CardTypesSection'
 import MetaDeckSection from './MetaDeckSection'
+import { ManaSymbol } from './ManaSymbol'
 
 function useInView(threshold = 0.2) {
   const ref = useRef(null)
@@ -48,8 +49,8 @@ function HeroSection({ onExplore }) {
   const [titleDone, setTitleDone] = useState(false)
   const [ctaVisible, setCtaVisible] = useState(false)
   const taglines = useMemo(() => [
-    'Busca cualquier carta de Magic al instante.',
-    'Construye tu colección perfecta.',
+    'Preparate para jugar Magic: The Gathering.',
+    'Construye tu mazo perfecta.',
     'Domina los cinco colores de maná.',
   ], [])
   const [tagline, setTagline] = useState(taglines[0])
@@ -93,11 +94,38 @@ function HeroSection({ onExplore }) {
     return () => { el.removeEventListener('mousemove', onMove); el.removeEventListener('mouseleave', onLeave) }
   }, [])
 
+  function CardBack({ className }) {
+    return (
+      <div className={`relative overflow-hidden rounded-[10px] ${className}`} style={{ background: '#2b1805' }}>
+        <div className="absolute inset-0 rounded-[10px] border-[3px]" style={{ borderColor: '#4a2c0a' }} />
+        <div className="absolute inset-[5px] rounded-[6px]" style={{ background: '#d9b77d' }} />
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: '65%', height: '55%', border: '2px solid #3d2208', borderRadius: '50%' }} />
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+          <div style={{ width: 18, height: 18, background: '#3d2208', clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)' }} />
+        </div>
+        <div className="absolute" style={{ top: '34%', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 4 }}>
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#f5e6d0' }} />
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#3b82f6' }} />
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#1a1a1a' }} />
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#ef4444' }} />
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#22c55e' }} />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#a855f7_0%,_transparent_60%)] opacity-15" />
         <div className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/10 blur-3xl" />
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+          <div className="flex gap-3 sm:gap-4">
+            <CardBack className="h-28 w-20 sm:h-36 sm:w-24 opacity-20" />
+            <CardBack className="h-28 w-20 sm:h-36 sm:w-24 opacity-30" />
+            <CardBack className="h-28 w-20 sm:h-36 sm:w-24 opacity-20" />
+          </div>
+        </div>
       </div>
 
       <div className="relative z-10 mx-auto max-w-4xl text-center">
@@ -105,7 +133,7 @@ function HeroSection({ onExplore }) {
           ref={shakeRef}
           className="mb-6 inline-block rounded-2xl border border-indigo-500/20 bg-indigo-500/10 px-4 py-1.5 text-xs font-medium tracking-widest uppercase text-indigo-300 transition-transform duration-200 ease-out"
         >
-          Magic: The Gathering &mdash; Búsqueda de Cartas &amp; Colección
+          Magic: The Gathering &mdash; Aprende a Jugar &amp; Construye tu mazo
         </div>
 
         <h1 className="mb-4 bg-gradient-to-r from-indigo-300 via-purple-200 to-indigo-300 bg-clip-text text-5xl font-extrabold leading-tight text-transparent sm:text-6xl md:text-7xl">
@@ -159,13 +187,12 @@ function ColorCard({ color, index, isActive, onClick, cardImageUrls }) {
     >
       <div className="mb-4 flex items-center gap-4">
         <span
-          className={`flex h-10 w-10 items-center justify-center rounded-lg text-lg font-bold ${
-            isActive
-              ? 'text-zinc-900 ' + color.iconBg.replace('/20', '/70')
-              : 'text-zinc-400 bg-zinc-800'
+          className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+            isActive ? color.iconBg : 'bg-zinc-800'
           }`}
+          aria-hidden="true"
         >
-          {color.symbol}
+          <ManaSymbol symbol={color.symbol} size="lg" shadow={isActive} />
         </span>
         <div>
           <h3 className={`text-lg font-bold transition-colors ${isActive ? color.textGlow : 'text-zinc-200'}`}>
@@ -220,7 +247,7 @@ function ColorCard({ color, index, isActive, onClick, cardImageUrls }) {
                   )}
                 </div>
                 <div className="border-t border-zinc-800 p-2">
-                  <p className="text-center text-[11px] font-medium text-zinc-300 leading-tight">{cardName}</p>
+                  <p className="text-center text-[11px] font-medium leading-tight text-zinc-300 line-clamp-2">{cardName}</p>
                 </div>
               </div>
             </div>
@@ -304,15 +331,17 @@ function ColorCarousel() {
           </button>
 
           <div className="flex gap-2">
-            {COLORS.map((_, i) => (
+            {COLORS.map((color, i) => (
               <button
                 key={i}
                 onClick={() => setActiveIndex(i)}
-                className={`h-2 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/50 ${
-                  i === activeIndex ? 'w-8 bg-indigo-400' : 'w-2 bg-zinc-700 hover:bg-zinc-500'
+                className={`flex h-7 w-7 items-center justify-center rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/50 ${
+                  i === activeIndex ? 'scale-110 bg-zinc-800/80 ring-2 ring-indigo-400/60' : 'opacity-50 hover:opacity-80'
                 }`}
-                aria-label={`Ir al color ${i + 1}`}
-              />
+                aria-label={`Ir al color ${color.name}`}
+              >
+                <ManaSymbol symbol={color.symbol} size="cost" shadow={i === activeIndex} />
+              </button>
             ))}
           </div>
 

@@ -1,9 +1,38 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { motion } from 'framer-motion'
 import { TUTORIAL_LESSONS } from '../data/tutorialLessons'
+import { ManaSymbol, ManaSymbolGroup } from './ManaSymbol'
 
 const CARD_IMAGE_CACHE = new Map()
 const IN_FLIGHT_REQUESTS = new Map()
 const CARD_BACK_URL = 'https://cards.scryfall.io/back.png'
+
+const LAND_MANA_COLORS = {
+  Bosque: 'G',
+  Montaña: 'R',
+  Isla: 'U',
+  Llanura: 'W',
+  Pantano: 'B',
+}
+
+const PREVIEW_CARD_COLORS = {
+  'Llanowar Elves': 'G',
+  'Oso Gris': 'G',
+  'Crecimiento Gigante': 'G',
+  'Lightning Strike': 'R',
+  'Slickshot Show-Off': 'R',
+  'Lobo de Plata': 'W',
+  'Cancelar': 'U',
+  'Asesinato': 'B',
+  'Vampiro Sengir': 'B',
+  'Goblin Rezagado': 'R',
+  'Gremlin de Sulfuro': 'R',
+  'Garra Ígnea': 'R',
+}
+
+function getPreviewCardColor(cardName, fallbackColors) {
+  return LAND_MANA_COLORS[cardName] || PREVIEW_CARD_COLORS[cardName] || fallbackColors?.[0] || null
+}
 
 const API_CARD_NAMES = {
   'Bosque': 'Forest',
@@ -18,6 +47,9 @@ const API_CARD_NAMES = {
   'Lightning Strike': 'Lightning Strike',
   'Cancelar': 'Cancel',
   'Garra Ígnea': 'Shivan Dragon',
+  'Pantano': 'Swamp',
+  'Asesinato': 'Murder',
+  'Gremlin de Sulfuro': 'Goblin Piker',
 }
 
 function getApiCardName(cardName) {
@@ -203,30 +235,57 @@ function CardTooltip({ message, visible }) {
   )
 }
 
-function ManaSymbol({ symbol }) {
-  const colors = {
-    W: 'bg-zinc-200 text-zinc-900',
-    U: 'bg-sky-400 text-white',
-    B: 'bg-zinc-800 text-zinc-100',
-    R: 'bg-red-500 text-white',
-    G: 'bg-emerald-500 text-white',
-  }
-  const numeric = /^\d+$/.test(symbol)
-  if (symbol === '') return null
-  return (
-    <span className={`inline-flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold leading-none shadow-sm ${numeric ? 'bg-zinc-600 text-zinc-100' : colors[symbol] || 'bg-zinc-600 text-zinc-100'}`}>
-      {symbol}
-    </span>
-  )
-}
-
 function ManaCost({ cost }) {
   if (!cost) return null
   const symbols = cost.match(/\{(\w+)\}/g) || []
   return (
     <span className="inline-flex items-center gap-0.5">
       {symbols.map((s, i) => (
-        <ManaSymbol key={i} symbol={s.replace(/[{}]/g, '')} />
+        <ManaSymbol key={i} symbol={s.replace(/[{}]/g, '')} size="cost" />
+      ))}
+    </span>
+  )
+}
+
+const LESSON_TEXT_TOKEN_RE = /(\*\*[^*]+\*\*|\{\w+\})/g
+
+function parseLessonTextSegment(text, keyPrefix = '') {
+  if (!text) return null
+  return text.split(LESSON_TEXT_TOKEN_RE).filter(Boolean).map((part, i) => {
+    const key = `${keyPrefix}-${i}`
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <strong key={key} className="font-semibold text-indigo-300">
+          {part.slice(2, -2)}
+        </strong>
+      )
+    }
+    const manaMatch = part.match(/^\{(\w+)\}$/)
+    if (manaMatch) {
+      return (
+        <ManaSymbol
+          key={key}
+          symbol={manaMatch[1]}
+          size="cost"
+          shadow={false}
+          className="mx-px align-[-2px] inline-block"
+        />
+      )
+    }
+    return part
+  })
+}
+
+function LessonRichText({ text, className = '' }) {
+  if (!text) return null
+  const lines = text.split('\n')
+  return (
+    <span className={className}>
+      {lines.map((line, lineIdx) => (
+        <span key={lineIdx}>
+          {lineIdx > 0 ? <br /> : null}
+          {parseLessonTextSegment(line, `l${lineIdx}`)}
+        </span>
       ))}
     </span>
   )
@@ -238,8 +297,12 @@ function ZonePile({ type, count, side = 'player', entrance = true, imageUrl }) {
   const borderColor = isLibrary ? 'border-amber-700/60' : 'border-zinc-600/60'
 
   return (
-    <div className={`relative flex flex-col items-center gap-1 transition-all duration-500 ${entrance ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
-      style={{ animationDelay: `${side === 'player' ? 300 : 150}ms` }}>
+    <motion.div
+      className="relative flex flex-col items-center gap-1"
+      initial={{ opacity: 0, scale: 0.75 }}
+      animate={entrance ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.75 }}
+      transition={{ duration: 0.5, ease: 'easeOut', delay: side === 'player' ? 0.3 : 0.15 }}
+    >
       <div className="relative w-[90px] h-[130px] max-sm:w-[60px] max-sm:h-[86px]">
         <div className={`absolute inset-0 rounded-lg border ${borderColor} bg-gradient-to-b from-zinc-900 to-zinc-950 rotate-6 translate-x-1`} />
         <div className={`absolute inset-0 rounded-lg border ${borderColor} bg-gradient-to-b from-zinc-900 to-zinc-950 -rotate-3 -translate-x-0.5`} />
@@ -271,11 +334,11 @@ function ZonePile({ type, count, side = 'player', entrance = true, imageUrl }) {
         </span>
       </div>
       <span className="text-[8px] font-semibold text-zinc-600 uppercase tracking-widest">{label}</span>
-    </div>
+    </motion.div>
   )
 }
 
-function GameCard({ card, size = 'normal', onClick, highlighted, faceDown, attacking, tooltipMessage, visible = true, animate, index = 0, delay = 0 }) {
+function GameCard({ card, size = 'normal', onClick, highlighted, faceDown, attacking, tooltipMessage, visible = true, animate, delay = 0 }) {
   const useAnim = animate !== undefined ? animate : visible
   const { url: imageUrl, status: imageStatus } = useCardImage(faceDown ? null : card.name)
   const [justClicked, setJustClicked] = useState(false)
@@ -300,20 +363,20 @@ function GameCard({ card, size = 'normal', onClick, highlighted, faceDown, attac
   let borderColor = cc.border
   if (faceDown) borderColor = 'border-zinc-700'
 
-  const animDelay = `${delay}ms`
-
   if (faceDown) {
     return (
-      <div
-        className={`relative shrink-0 rounded-lg border-2 ${borderColor} ${sizeClasses} overflow-hidden transition-all duration-300 ${visible ? (useAnim ? 'animate-zone-appear' : 'opacity-100') : 'opacity-0 scale-75'}`}
-        style={useAnim ? { animationDelay: animDelay } : {}}
+      <motion.div
+        className={`relative shrink-0 rounded-lg border-2 ${borderColor} ${sizeClasses} overflow-hidden`}
+        initial={useAnim ? { opacity: 0, scale: 0.8 } : false}
+        animate={visible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.75 }}
+        transition={{ duration: 0.4, ease: 'easeOut', delay: delay / 1000 }}
       >
         <img
           src={CARD_BACK_URL}
           alt="Dorso"
           className="h-full w-full object-cover"
         />
-      </div>
+      </motion.div>
     )
   }
 
@@ -323,27 +386,40 @@ function GameCard({ card, size = 'normal', onClick, highlighted, faceDown, attac
   return (
     <div className="relative">
       <CardTooltip message={tooltipMessage} visible={showTooltip} />
-      <button
+      <motion.button
         onClick={handleClick}
         disabled={!onClick}
-        className={`relative shrink-0 rounded-lg border-2 text-left transition-all duration-500 ${borderColor} ${sizeClasses} ${
+        className={`relative shrink-0 rounded-lg border-2 text-left ${borderColor} ${sizeClasses} ${
           isTapped ? '-rotate-90' : ''
         } ${
           isHighlighted && !justClicked
-            ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-zinc-900 scale-105 saturate-150 animate-glow-pulse'
+            ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-zinc-900 saturate-150 animate-glow-pulse'
             : 'saturate-90'
         } ${
-          justClicked ? 'ring-2 ring-emerald-400 ring-offset-2 ring-offset-zinc-900 scale-110 saturate-150 brightness-125' : ''
+          justClicked ? 'ring-2 ring-emerald-400 ring-offset-2 ring-offset-zinc-900 saturate-150 brightness-125' : ''
         } ${
           attacking ? 'translate-y-2 scale-105' : ''
         } ${
-          onClick ? 'hover:scale-110 hover:shadow-xl hover:shadow-yellow-500/20 hover:-translate-y-6 hover:z-50' : ''
-        } ${
           card.tapped ? 'opacity-80' : ''
-        } ${
-          visible ? (useAnim ? 'animate-slide-up-card' : 'opacity-100') : 'opacity-0 translate-y-8'
         } overflow-hidden`}
-        style={useAnim ? { animationDelay: animDelay } : {}}
+        initial={useAnim ? { opacity: 0, y: 40, scale: 0.95 } : false}
+        animate={
+          visible
+            ? {
+                opacity: 1,
+                y: justClicked ? -8 : 0,
+                scale: justClicked ? 1.1 : isHighlighted && !justClicked ? 1.05 : 1,
+              }
+            : { opacity: 0, y: 32, scale: 0.9 }
+        }
+        transition={{
+          type: 'spring',
+          stiffness: 300,
+          damping: 24,
+          delay: delay / 1000,
+        }}
+        whileHover={onClick ? { scale: 1.1, y: -24, boxShadow: '0 20px 25px -5px rgba(234,179,8,0.2)', zIndex: 50 } : {}}
+        whileTap={onClick ? { scale: 1.15 } : {}}
       >
         <div className="absolute inset-0 rounded-lg overflow-hidden">
           <div className={`absolute inset-0 rounded-lg bg-gradient-to-br ${cc.from} ${cc.to} transition-opacity duration-700 ${imageStatus === 'loaded' ? 'opacity-0' : 'opacity-100'}`} />
@@ -403,12 +479,12 @@ function GameCard({ card, size = 'normal', onClick, highlighted, faceDown, attac
         {(isHighlighted && !justClicked) && (
           <div className="absolute inset-0 rounded-lg ring-1 ring-yellow-400/60 animate-pulse pointer-events-none" />
         )}
-      </button>
+      </motion.button>
     </div>
   )
 }
 
-function GameCardSmall({ card, onClick, highlighted, attacking, tooltipMessage, visible = true, animate, index = 0, delay = 0 }) {
+function GameCardSmall({ card, onClick, highlighted, attacking, tooltipMessage, visible = true, animate, delay = 0 }) {
   const { url: imageUrl, status: imageStatus } = useCardImage(card.name)
   const [justClicked, setJustClicked] = useState(false)
 
@@ -422,31 +498,42 @@ function GameCardSmall({ card, onClick, highlighted, attacking, tooltipMessage, 
   }, [onClick])
 
   const showTooltip = highlighted && !justClicked && tooltipMessage
-  const animDelay = `${delay}ms`
   const useAnim = animate !== undefined ? animate : visible
 
   return (
     <div className="relative">
       <CardTooltip message={tooltipMessage} visible={showTooltip} />
-      <button
+      <motion.button
         onClick={handleClick}
         disabled={!onClick}
-        className={`relative shrink-0 rounded-lg border-2 ${cc.border} text-left transition-all duration-300 overflow-hidden ${
+        data-card-id={card.id}
+        className={`relative shrink-0 rounded-lg border-2 ${cc.border} text-left overflow-hidden ${
           card.tapped ? '-rotate-90' : ''
         } ${
           highlighted && !justClicked
-            ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-zinc-900 scale-105 saturate-150'
+            ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-zinc-900 saturate-150'
             : ''
         } ${
-          justClicked ? 'ring-2 ring-emerald-400 ring-offset-2 ring-offset-zinc-900 scale-110 saturate-150' : ''
+          justClicked ? 'ring-2 ring-emerald-400 ring-offset-2 ring-offset-zinc-900 saturate-150' : ''
         } ${
           attacking ? 'translate-y-2 scale-105' : ''
         } ${
-          onClick ? 'hover:scale-110 hover:shadow-xl hover:shadow-yellow-500/20 hover:-translate-y-4 hover:z-50 cursor-pointer' : ''
-        } ${
-          visible ? (useAnim ? 'animate-slide-up-card-small' : 'opacity-100') : 'opacity-0 translate-y-6'
+          onClick ? 'cursor-pointer' : ''
         }           w-[90px] h-[130px] max-sm:w-[60px] max-sm:h-[86px]`}
-        style={useAnim ? { animationDelay: animDelay } : {}}
+        initial={useAnim ? { opacity: 0, y: 30, scale: 0.92 } : false}
+        animate={
+          visible
+            ? { opacity: 1, y: justClicked ? -6 : 0, scale: justClicked ? 1.1 : highlighted && !justClicked ? 1.05 : 1 }
+            : { opacity: 0, y: 24, scale: 0.85 }
+        }
+        transition={{
+          type: 'spring',
+          stiffness: 300,
+          damping: 24,
+          delay: delay / 1000,
+        }}
+        whileHover={onClick ? { scale: 1.1, y: -16, boxShadow: '0 20px 25px -5px rgba(234,179,8,0.2)', zIndex: 50 } : {}}
+        whileTap={onClick ? { scale: 1.15 } : {}}
       >
         <div className="absolute inset-0 rounded-lg overflow-hidden">
           <div className={`absolute inset-0 rounded-lg bg-gradient-to-br ${cc.from} ${cc.to} transition-opacity duration-700 ${imageStatus === 'loaded' ? 'opacity-0' : 'opacity-100'}`} />
@@ -483,14 +570,28 @@ function GameCardSmall({ card, onClick, highlighted, attacking, tooltipMessage, 
         {(highlighted && !justClicked) && (
           <div className="absolute inset-0 rounded-lg ring-1 ring-yellow-400/60 animate-pulse pointer-events-none" />
         )}
-      </button>
+      </motion.button>
     </div>
   )
 }
 
+const lessonCardVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.15, duration: 0.5, ease: 'easeOut' },
+  }),
+}
+
 function LessonMenu({ onSelect, onBack }) {
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-4 py-12">
+    <motion.div
+      className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-4 py-12"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
       <div className="mx-auto w-full max-w-4xl">
         <div className="mb-10 text-center">
           <span className="mb-3 inline-block rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300">
@@ -505,16 +606,22 @@ function LessonMenu({ onSelect, onBack }) {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2">
-          {TUTORIAL_LESSONS.map((lesson, li) => (
-            <button
+          {TUTORIAL_LESSONS.map((lesson, li) => {
+            return (
+            <motion.button
               key={lesson.id}
               onClick={() => onSelect(lesson)}
-              className={`group relative overflow-hidden rounded-2xl border ${lesson.colorBorder} ${lesson.colorBg} p-6 text-left transition-all duration-300 hover:scale-[1.02] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/50`}
-              style={{ animation: `fadeInUp 0.5s ease-out forwards`, animationDelay: `${li * 150}ms` }}
+              custom={li}
+              variants={lessonCardVariants}
+              initial="hidden"
+              animate="visible"
+              whileHover={{ scale: 1.02, boxShadow: '0 20px 25px -5px rgba(0,0,0,0.3)' }}
+              whileTap={{ scale: 0.98 }}
+              className={`group relative overflow-hidden rounded-2xl border ${lesson.colorBorder} ${lesson.colorBg} p-6 text-left transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/50`}
             >
               <div className="mb-4 flex items-center gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${lesson.colorBg === 'bg-emerald-500/10' ? 'from-emerald-500/20 to-emerald-600/20' : lesson.colorBg === 'bg-indigo-500/10' ? 'from-indigo-500/20 to-blue-600/20' : 'from-red-500/20 to-orange-600/20'} border ${lesson.colorBorder}`}>
-                  <span className="text-lg">{lesson.id === 'selva-embrujada' ? '\u{1F33F}' : lesson.id === 'reflejos-azules' ? '\u{1F30A}' : '\u{1F525}'}</span>
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${lesson.colorBg === 'bg-emerald-500/10' ? 'from-emerald-500/20 to-emerald-600/20' : lesson.colorBg === 'bg-indigo-500/10' ? 'from-indigo-500/20 to-blue-600/20' : lesson.colorBg === 'bg-sky-500/10' ? 'from-sky-500/20 to-emerald-600/20' : lesson.colorBg === 'bg-zinc-500/10' ? 'from-zinc-500/20 to-zinc-600/20' : 'from-red-500/20 to-orange-600/20'} border ${lesson.colorBorder}`}>
+                  <ManaSymbolGroup colors={lesson.deckColors} size="lg" />
                 </div>
                 <div>
                   <h3 className={`text-lg font-bold ${lesson.colorText}`}>{lesson.title}</h3>
@@ -525,11 +632,15 @@ function LessonMenu({ onSelect, onBack }) {
                 {lesson.description}
               </p>
               <div className="flex flex-wrap gap-2">
-                {lesson.deckPreview.map((cardName, i) => (
-                  <span key={i} className="rounded-full border border-zinc-700/50 bg-zinc-800/50 px-2.5 py-0.5 text-[11px] text-zinc-400">
-                    {cardName}
-                  </span>
-                ))}
+                {lesson.deckPreview.map((cardName, i) => {
+                  const previewColor = getPreviewCardColor(cardName, lesson.deckColors)
+                  return (
+                    <span key={i} className="inline-flex items-center gap-1 rounded-full border border-zinc-700/50 bg-zinc-800/50 px-2 py-0.5 text-[11px] text-zinc-400">
+                      {previewColor ? <ManaSymbol symbol={previewColor} size="cost" shadow={false} /> : null}
+                      {cardName}
+                    </span>
+                  )
+                })}
               </div>
               <div className="mt-4 flex items-center gap-1 text-xs text-zinc-500">
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -539,23 +650,26 @@ function LessonMenu({ onSelect, onBack }) {
               </div>
 
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-            </button>
-          ))}
+            </motion.button>
+          )
+        })}
         </div>
 
         <div className="mt-10 text-center">
-          <button
+          <motion.button
             onClick={onBack}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             className="inline-flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/60 px-6 py-3 text-sm text-zinc-400 transition-colors hover:border-zinc-700 hover:text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/50"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
             </svg>
             Volver al Inicio
-          </button>
+          </motion.button>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -590,32 +704,56 @@ function DrawRevealCard({ cardName }) {
   )
 }
 
-function AttackFly({ card, damage }) {
+function AttackFly({ card, damage, startRect }) {
   const cc = colorConfig[card.color === 'land' ? 'land' : card.color] || colorConfig.B
   const { url: imageUrl, status: imageStatus } = useCardImage(card.name)
 
+  if (!startRect) return null
+
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  const cardCx = startRect.left + startRect.width / 2
+  const cardCy = startRect.top + startRect.height / 2
+  const lifeX = vw / 2
+  const lifeY = vh * 0.08
+  const dx = lifeX - cardCx
+  const dy = lifeY - cardCy
+  const animName = 'anim-' + (card.id || 'fly')
+
   return (
     <div className="fixed inset-0 z-[997] pointer-events-none">
-      {/* Wind/trail streaks - follow the card's arc */}
-      <div className="absolute bottom-[35%] left-1/2 -ml-20"><div className="w-[110px] h-[2px] bg-gradient-to-r from-transparent via-red-400/60 to-transparent rounded-full blur-[2px] animate-wind-streak" /></div>
-      <div className="absolute bottom-[35%] left-1/2 -ml-10"><div className="w-[140px] h-[3px] bg-gradient-to-r from-transparent via-orange-400/50 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.1s' }} /></div>
-      <div className="absolute bottom-[35%] left-1/2 ml-10"><div className="w-[120px] h-[2px] bg-gradient-to-r from-transparent via-red-400/50 to-transparent rounded-full blur-[2px] animate-wind-streak" style={{ animationDelay: '0.15s' }} /></div>
-      <div className="absolute bottom-[35%] left-1/2 ml-20"><div className="w-[90px] h-[2px] bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.2s' }} /></div>
-      <div className="absolute bottom-[35%] left-1/2 -ml-28"><div className="w-[70px] h-[1.5px] bg-gradient-to-r from-transparent via-red-400/40 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.05s' }} /></div>
-      <div className="absolute bottom-[35%] left-1/2 ml-28"><div className="w-[60px] h-[1.5px] bg-gradient-to-r from-transparent via-orange-400/30 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.25s' }} /></div>
+      <style>{`@keyframes ${animName}{0%{transform:translate(0,0) scale(1) rotate(0deg)}30%{transform:translate(${dx}px,${dy}px) scale(1.05) rotate(5deg)}42%{transform:translate(${dx}px,${dy}px) scale(1.1) rotate(2deg)}85%{transform:translate(${dx*0.06}px,${dy*0.06}px) scale(0.95) rotate(-2deg)}100%{transform:translate(0,0) scale(1) rotate(0deg)}}`}</style>
+      {/* Animated group: card + streaks via translate */}
+      <div
+        className="absolute"
+        style={{ top: startRect.top, left: startRect.left, width: startRect.width, height: startRect.height }}
+      >
+        <div
+          className="relative w-full h-full"
+          style={{ animation: `${animName} 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards` }}
+        >
+          {/* Wind/trail streaks */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -ml-16 w-[110px] h-[2px] bg-gradient-to-r from-transparent via-red-400/60 to-transparent rounded-full blur-[2px] animate-wind-streak" />
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -ml-8 w-[140px] h-[3px] bg-gradient-to-r from-transparent via-orange-400/50 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.1s' }} />
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ml-8 w-[120px] h-[2px] bg-gradient-to-r from-transparent via-red-400/50 to-transparent rounded-full blur-[2px] animate-wind-streak" style={{ animationDelay: '0.15s' }} />
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ml-16 w-[90px] h-[2px] bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.2s' }} />
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -ml-24 w-[70px] h-[1.5px] bg-gradient-to-r from-transparent via-red-400/40 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.05s' }} />
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ml-24 w-[60px] h-[1.5px] bg-gradient-to-r from-transparent via-orange-400/30 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.25s' }} />
 
-      {/* Card */}
-      <div className="animate-card-attack absolute bottom-[35%] left-1/2 w-[90px] h-[126px] max-sm:w-[64px] max-sm:h-[90px] -translate-x-1/2 rounded-xl border-[3px] overflow-hidden shadow-2xl shadow-red-500/30 border-red-500/50">
-        <div className={`absolute inset-0 bg-gradient-to-br ${cc.from} ${cc.to} transition-opacity duration-300 ${imageStatus === 'loaded' ? 'opacity-0' : 'opacity-100'}`} />
-        {imageUrl && (
-          <div
-            className={`absolute inset-0 bg-cover bg-center transition-all duration-500 ${imageStatus === 'loaded' ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-            style={{ backgroundImage: `url(${imageUrl})` }}
-          />
-        )}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-        <div className="absolute bottom-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-lg">
-          {damage}
+          {/* Card */}
+          <div className="absolute inset-0 rounded-xl border-[3px] overflow-hidden shadow-2xl shadow-red-500/30 border-red-500/50">
+            <div className={`absolute inset-0 bg-gradient-to-br ${cc.from} ${cc.to} transition-opacity duration-300 ${imageStatus === 'loaded' ? 'opacity-0' : 'opacity-100'}`} />
+            {imageUrl && (
+              <div
+                className={`absolute inset-0 bg-cover bg-center transition-all duration-500 ${imageStatus === 'loaded' ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+                style={{ backgroundImage: `url(${imageUrl})` }}
+              />
+            )}
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute bottom-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-lg">
+              {damage}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -673,8 +811,21 @@ function InteractionPopup({ popup, cards, onDismiss }) {
   }, [onDismiss])
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md px-4" onClick={onDismiss}>
-      <div className="animate-in zoom-in-95 duration-200 rounded-2xl border border-zinc-700/80 bg-zinc-900/95 p-5 sm:p-6 max-w-sm w-full shadow-2xl shadow-indigo-500/10 backdrop-blur-xl" onClick={e => e.stopPropagation()}>
+    <motion.div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md px-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onDismiss}
+    >
+      <motion.div
+        className="rounded-2xl border border-zinc-700/80 bg-zinc-900/95 p-5 sm:p-6 max-w-sm w-full shadow-2xl shadow-indigo-500/10 backdrop-blur-xl"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        onClick={e => e.stopPropagation()}
+      >
         {popup.title && (
           <h3 className="text-base font-bold text-indigo-300 mb-3 text-center leading-tight">{popup.title}</h3>
         )}
@@ -685,7 +836,9 @@ function InteractionPopup({ popup, cards, onDismiss }) {
           ))}
         </div>
 
-        <p className="text-sm text-zinc-300 text-center leading-relaxed">{popup.description}</p>
+        <p className="text-sm text-zinc-300 text-center leading-relaxed">
+          <LessonRichText text={popup.description} />
+        </p>
 
         <button
           onClick={onDismiss}
@@ -693,8 +846,8 @@ function InteractionPopup({ popup, cards, onDismiss }) {
         >
           Continuar
         </button>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
@@ -774,7 +927,12 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, lifeRecoil }) {
   const boardVisible = sceneIdx === 0 ? entrance : true
 
   return (
-    <div className={`flex flex-row min-h-[calc(100vh-4rem)] transition-all duration-500 ${boardVisible ? 'opacity-100' : 'opacity-0'}`}>
+    <motion.div
+      className="flex flex-row min-h-[calc(100vh-4rem)]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <PhaseChangeBanner
         phase={phaseBanner.phase}
         visible={phaseBanner.visible}
@@ -782,7 +940,12 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, lifeRecoil }) {
       />
       <div className="battlefield-magic flex-1 px-2 py-2 sm:px-4 sm:py-3 flex flex-col overflow-y-auto">
         {/* Top bar */}
-        <div className={`relative mb-1.5 sm:mb-2 flex items-center justify-between rounded-xl border border-zinc-700/50 bg-zinc-950/70 backdrop-blur-sm px-2 py-1 sm:px-4 sm:py-2 transition-all duration-500 ${boardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3'}`}>
+        <motion.div
+          className="relative mb-1.5 sm:mb-2 flex items-center justify-between rounded-xl border border-zinc-700/50 bg-zinc-950/70 backdrop-blur-sm px-2 py-1 sm:px-4 sm:py-2"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0 }}
+        >
           <div className="flex items-center gap-1.5 sm:gap-2">
             <span className={`rounded-md px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold ${
               isLessonComplete
@@ -804,11 +967,16 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, lifeRecoil }) {
           <div className="flex items-center gap-3">
             <span className="hidden text-xs text-zinc-500 sm:inline">P. {sceneIdx + 1}/{lesson.scenes.length}</span>
           </div>
-        </div>
+        </motion.div>
 
         <div className="flex-1 flex flex-col justify-center">
           {/* Opponent side */}
-          <div className={`mb-3 transition-all duration-500 delay-75 ${boardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
+          <motion.div
+            className="mb-3"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.075 }}
+          >
             {/* Opponent zones row: hand + library/graveyard */}
             <div className="flex items-start justify-center gap-3 mb-1.5">
               <div className="flex justify-center items-start py-2 overflow-visible">
@@ -855,10 +1023,15 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, lifeRecoil }) {
                 ))}
               </div>
             )}
-          </div>
+          </motion.div>
 
           {/* Divider */}
-          <div className={`relative my-1.5 sm:my-2 transition-all duration-500 delay-150 ${boardVisible ? 'opacity-100' : 'opacity-0'}`}>
+          <motion.div
+            className="relative my-1.5 sm:my-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+          >
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-amber-900/30" />
             </div>
@@ -867,10 +1040,15 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, lifeRecoil }) {
                 CAMPO DE BATALLA
               </span>
             </div>
-          </div>
+          </motion.div>
 
           {/* Player side */}
-          <div className={`mb-2 transition-all duration-500 delay-200 ${boardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
+          <motion.div
+            className="mb-2"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             {state.playerBoard.length > 0 && (
               <div className="flex flex-wrap gap-1 sm:gap-1.5 justify-center mb-1.5 pl-1">
                 {state.playerBoard.map((card) => {
@@ -942,7 +1120,7 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, lifeRecoil }) {
                 })}
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Draw animation overlay */}
@@ -973,7 +1151,12 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, lifeRecoil }) {
         )}
 
         {/* Player life + progress bar */}
-        <div className={`pt-2 transition-all duration-500 delay-300 ${boardVisible ? 'opacity-100' : 'opacity-0'}`}>
+        <motion.div
+          className="pt-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
           <div className="flex items-center justify-between rounded-xl border border-zinc-800/50 bg-zinc-950/40 backdrop-blur-sm px-3 py-2">
             <div className="flex items-center gap-1.5">
               <svg className="h-4 w-4 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
@@ -993,13 +1176,18 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, lifeRecoil }) {
             </div>
             <span className="text-[10px] text-zinc-600 tabular-nums">{sceneIdx + 1}/{lesson.scenes.length}</span>
           </div>
-        </div>
+        </motion.div>
       </div>
       {/* Phase ladder */}
-      <div className={`hidden sm:flex items-center pr-3 transition-all duration-500 delay-300 ${boardVisible ? 'opacity-100' : 'opacity-0'}`}>
+      <motion.div
+        className="hidden sm:flex items-center pr-3"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
         <PhaseLadder currentPhase={scene.phase} />
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
@@ -1047,9 +1235,12 @@ function PhaseChangeBanner({ phase, visible, instruction }) {
   if (!step) return null
 
   return (
-    <div className={`pointer-events-none fixed top-20 left-1/2 z-50 -translate-x-1/2 transition-all duration-500 ${
-      visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-    }`}>
+    <motion.div
+      className="pointer-events-none fixed top-20 left-1/2 z-50 -translate-x-1/2"
+      initial={{ opacity: 0, y: -16 }}
+      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: -16 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+    >
       <div className={`rounded-xl border-[3px] border-zinc-900 bg-zinc-950/90 backdrop-blur-md px-5 py-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)]`}>
         <div className="flex items-center gap-2 mb-1">
           <div className={`h-2.5 w-2.5 rounded-full ${step.color} shadow-lg`} />
@@ -1057,11 +1248,13 @@ function PhaseChangeBanner({ phase, visible, instruction }) {
             {phase}
           </span>
         </div>
-        {instruction && (
-          <p className="text-[11px] text-zinc-400 max-w-md leading-relaxed">{instruction}</p>
-        )}
+        {instruction ? (
+          <p className="max-w-md text-[11px] leading-relaxed text-zinc-400">
+            <LessonRichText text={instruction} />
+          </p>
+        ) : null}
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -1188,6 +1381,13 @@ export default function GameDemo({ onBack }) {
     if (pendingAttackRef.current) {
       const attack = pendingAttackRef.current
       pendingAttackRef.current = null
+
+      const cardEl = document.querySelector(`[data-card-id="${attack.card.id}"]`)
+      if (cardEl) {
+        const r = cardEl.getBoundingClientRect()
+        attack.startRect = { top: r.top, left: r.left, width: r.width, height: r.height }
+      }
+
       setAttackAnim(attack)
       if (attack.type === 'combat') {
         setTimeout(() => setHitVisible(true), 200)
@@ -1245,25 +1445,24 @@ export default function GameDemo({ onBack }) {
       />
 
       {/* Bottom tutorial panel */}
-      <div className={`sticky bottom-0 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur-xl transition-opacity duration-300 ${transitioning ? 'opacity-50' : 'opacity-100'}`}>
+      <motion.div
+        className="sticky bottom-0 z-50 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur-xl"
+        animate={{ opacity: transitioning ? 0.5 : 1 }}
+        transition={{ duration: 0.3 }}
+      >
         <div className="mx-auto max-w-4xl px-3 py-2 sm:px-4 sm:py-4 max-sm:px-1.5 max-sm:py-1.5">
           <div className="space-y-1.5 sm:space-y-2">
             {scene.tip && (
             <div className="mb-1.5 sm:mb-2 flex items-start gap-1 rounded-lg border border-amber-500/20 bg-amber-500/10 px-2 py-1 sm:px-2.5 sm:py-1.5 max-sm:px-1.5 max-sm:py-0.5">
               <span className="mt-0.5 shrink-0 text-[11px] text-amber-400">💡</span>
-              <p className="text-[11px] leading-relaxed text-amber-200/80 max-sm:text-[9px] max-sm:leading-snug">{scene.tip}</p>
+              <p className="text-[11px] leading-relaxed text-amber-200/80 max-sm:text-[9px] max-sm:leading-snug">
+                <LessonRichText text={scene.tip} />
+              </p>
             </div>
             )}
 
           <p className="text-sm leading-relaxed text-zinc-300 whitespace-pre-line max-sm:text-[11px] max-sm:leading-snug">
-            {scene.instruction
-              .replace(/\*\*(.+?)\*\*/g, '<strong class="text-indigo-300 font-semibold">$1</strong>')
-              .split('\n').map((line, i) => (
-                <span key={i}>
-                  {i > 0 && <br />}
-                  <span dangerouslySetInnerHTML={{ __html: line }} />
-                </span>
-              ))}
+            <LessonRichText text={scene.instruction} />
           </p>
           </div>
 
@@ -1327,10 +1526,10 @@ export default function GameDemo({ onBack }) {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {attackAnim && attackAnim.type !== 'combat' && (
-        <AttackFly card={attackAnim.card} damage={attackAnim.damage} />
+        <AttackFly card={attackAnim.card} damage={attackAnim.damage} startRect={attackAnim.startRect} />
       )}
 
       {hitVisible && (
