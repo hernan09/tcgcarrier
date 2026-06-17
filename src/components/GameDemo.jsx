@@ -595,15 +595,17 @@ function AttackFly({ card, damage }) {
   const { url: imageUrl, status: imageStatus } = useCardImage(card.name)
 
   return (
-    <div className="fixed inset-0 z-[997] pointer-events-none flex items-center justify-center">
-      {/* Wind/trail streaks */}
-      <div className="absolute bottom-[32%] left-1/2"><div className="w-[140px] h-[3px] -translate-x-1/2 bg-gradient-to-r from-transparent via-red-400/50 to-transparent rounded-full blur-[2px] animate-wind-streak" /></div>
-      <div className="absolute bottom-[32%] left-1/2 ml-5"><div className="w-[100px] h-[2px] -translate-x-1/2 bg-gradient-to-r from-transparent via-orange-400/40 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.12s' }} /></div>
-      <div className="absolute bottom-[32%] left-1/2 -ml-4"><div className="w-[80px] h-[4px] -translate-x-1/2 bg-gradient-to-r from-transparent via-red-400/30 to-transparent rounded-full blur-sm animate-wind-streak" style={{ animationDelay: '0.22s' }} /></div>
-      <div className="absolute bottom-[32%] left-1/2 ml-8"><div className="w-[60px] h-[2px] -translate-x-1/2 bg-gradient-to-r from-transparent via-yellow-400/30 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.08s' }} /></div>
+    <div className="fixed inset-0 z-[997] pointer-events-none">
+      {/* Wind/trail streaks - follow the card's arc */}
+      <div className="absolute bottom-[35%] left-1/2 -ml-20"><div className="w-[110px] h-[2px] bg-gradient-to-r from-transparent via-red-400/60 to-transparent rounded-full blur-[2px] animate-wind-streak" /></div>
+      <div className="absolute bottom-[35%] left-1/2 -ml-10"><div className="w-[140px] h-[3px] bg-gradient-to-r from-transparent via-orange-400/50 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.1s' }} /></div>
+      <div className="absolute bottom-[35%] left-1/2 ml-10"><div className="w-[120px] h-[2px] bg-gradient-to-r from-transparent via-red-400/50 to-transparent rounded-full blur-[2px] animate-wind-streak" style={{ animationDelay: '0.15s' }} /></div>
+      <div className="absolute bottom-[35%] left-1/2 ml-20"><div className="w-[90px] h-[2px] bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.2s' }} /></div>
+      <div className="absolute bottom-[35%] left-1/2 -ml-28"><div className="w-[70px] h-[1.5px] bg-gradient-to-r from-transparent via-red-400/40 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.05s' }} /></div>
+      <div className="absolute bottom-[35%] left-1/2 ml-28"><div className="w-[60px] h-[1.5px] bg-gradient-to-r from-transparent via-orange-400/30 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.25s' }} /></div>
 
       {/* Card */}
-      <div className="animate-card-attack absolute bottom-[32%] left-1/2 w-[90px] h-[126px] max-sm:w-[64px] max-sm:h-[90px] -translate-x-1/2 rounded-xl border-[3px] overflow-hidden shadow-2xl shadow-red-500/30 border-red-500/50">
+      <div className="animate-card-attack absolute bottom-[35%] left-1/2 w-[90px] h-[126px] max-sm:w-[64px] max-sm:h-[90px] -translate-x-1/2 rounded-xl border-[3px] overflow-hidden shadow-2xl shadow-red-500/30 border-red-500/50">
         <div className={`absolute inset-0 bg-gradient-to-br ${cc.from} ${cc.to} transition-opacity duration-300 ${imageStatus === 'loaded' ? 'opacity-0' : 'opacity-100'}`} />
         {imageUrl && (
           <div

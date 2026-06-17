@@ -92,11 +92,11 @@ export default function CardTypesSection() {
                     ))}
                   </div>
                   {i === activeType && (
-                    <div className="mt-5 flex flex-row flex-nowrap items-stretch justify-center gap-3">
+                    <div className="mt-4 flex flex-row flex-nowrap items-stretch justify-center gap-2">
                       {type.cards.map((cardName, ci) => (
                         <div
                           key={cardName}
-                          className="group w-28 sm:w-36 min-w-0"
+                          className="group w-20 sm:w-28 min-w-0"
                           style={{ animation: `fadeSlideCard 0.5s ease-out ${ci * 0.15}s both` }}
                         >
                           <div className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900/60 transition-all duration-300 group-hover:border-zinc-700 group-hover:shadow-xl">

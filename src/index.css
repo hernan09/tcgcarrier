@@ -100,43 +100,49 @@
 
 @keyframes cardAttackFly {
   0% {
-    opacity: 0;
-    transform: translate(-50%, 0) scale(0.55) rotate(-8deg);
+    transform: translate(-50%, 8vh) scale(0.55) rotate(-12deg);
   }
-  12% {
-    opacity: 1;
+  8% {
+    transform: translate(-50%, 3vh) scale(0.65) rotate(-8deg);
   }
-  42% {
-    transform: translate(-50%, calc(-38vh)) scale(1) rotate(4deg);
+  40% {
+    transform: translate(-50%, -48vh) scale(1.05) rotate(6deg);
   }
-  52% {
-    transform: translate(-50%, calc(-35vh)) scale(1.05) rotate(2deg);
+  48% {
+    transform: translate(-50%, -45vh) scale(1.1) rotate(3deg);
+  }
+  85% {
+    transform: translate(-50%, 3vh) scale(0.7) rotate(-6deg);
   }
   100% {
-    opacity: 1;
-    transform: translate(-50%, 0) scale(0.85) rotate(0deg);
+    transform: translate(-50%, 8vh) scale(0.55) rotate(-12deg);
   }
 }
 
 @keyframes windStreak {
   0% {
     opacity: 0;
-    transform: translate(-50%, 0) scaleX(1);
+    transform: translateY(8vh) scaleX(0.4);
   }
-  15% {
-    opacity: 0.7;
+  10% {
+    opacity: 0.6;
+    transform: translateY(3vh) scaleX(0.8);
   }
-  42% {
+  40% {
     opacity: 0.9;
-    transform: translate(-50%, calc(-19vh)) scaleX(1.8);
+    transform: translateY(-48vh) scaleX(2.5);
   }
-  52% {
+  48% {
     opacity: 0.5;
-    transform: translate(-50%, calc(-17vh)) scaleX(1.5);
+    transform: translateY(-45vh) scaleX(1.8);
+  }
+  85% {
+    opacity: 0.3;
+    transform: translateY(3vh) scaleX(0.5);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, 0) scaleX(0.6);
+    transform: translateY(8vh) scaleX(0.2);
   }
 }
 

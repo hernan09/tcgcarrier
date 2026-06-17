@@ -150,7 +150,7 @@ function ColorCard({ color, index, isActive, onClick, cardImageUrls }) {
     <button
       onClick={onClick}
       ref={ref}
-      className={`group relative w-full shrink-0 cursor-pointer rounded-2xl border p-6 text-left transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/50 sm:p-8 ${
+      className={`group relative w-full shrink-0 cursor-pointer rounded-2xl border p-4 text-left transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/50 sm:p-5 ${
         isActive
           ? `border-transparent bg-gradient-to-br ${color.gradientBg} shadow-xl`
           : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700 hover:bg-zinc-800/60'
@@ -180,25 +180,25 @@ function ColorCard({ color, index, isActive, onClick, cardImageUrls }) {
         )}
       </div>
 
-      <p className={`mb-4 text-sm leading-relaxed transition-opacity duration-300 ${isActive ? 'text-zinc-300' : 'text-zinc-500'}`}>
+      <p className={`mb-3 text-sm leading-relaxed transition-opacity duration-300 ${isActive ? 'text-zinc-300' : 'text-zinc-500'}`}>
         {isActive ? color.description : color.description.slice(0, 80) + '...'}
       </p>
 
       <div className="flex flex-wrap gap-1.5">
-        <span className="rounded-full border border-zinc-700/50 bg-zinc-800/50 px-2.5 py-0.5 text-[11px] text-zinc-400">
+        <span className="rounded-full border border-zinc-700/50 bg-zinc-800/50 px-2 py-0.5 text-[10px] text-zinc-400">
           {color.mechanics.split(',')[0]}
         </span>
-        <span className="rounded-full border border-zinc-700/50 bg-zinc-800/50 px-2.5 py-0.5 text-[11px] text-zinc-400">
+        <span className="rounded-full border border-zinc-700/50 bg-zinc-800/50 px-2 py-0.5 text-[10px] text-zinc-400">
           {color.mechanics.split(',')[1]}
         </span>
       </div>
 
       {isActive && cardImageUrls && (
-        <div className="mt-5 flex flex-row flex-nowrap items-stretch justify-center gap-3">
+        <div className="mt-4 flex flex-row flex-nowrap items-stretch justify-center gap-2">
           {color.cards.map((cardName, i) => (
             <div
               key={cardName}
-              className="group w-28 sm:w-36 min-w-0"
+              className="group w-20 sm:w-28 min-w-0"
               style={{ animation: `fadeSlideCard 0.5s ease-out ${i * 0.15}s both` }}
             >
               <div className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900/60 transition-all duration-300 group-hover:border-zinc-700 group-hover:shadow-xl">
