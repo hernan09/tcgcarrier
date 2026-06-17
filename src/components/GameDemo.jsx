@@ -299,6 +299,7 @@ function ZonePile({ type, count, side = 'player', entrance = true, imageUrl }) {
   return (
     <motion.div
       className="relative flex flex-col items-center gap-1"
+      data-zone={type === 'graveyard' ? `${side}-graveyard` : `${side}-library`}
       initial={{ opacity: 0, scale: 0.75 }}
       animate={entrance ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.75 }}
       transition={{ duration: 0.5, ease: 'easeOut', delay: side === 'player' ? 0.3 : 0.15 }}
@@ -389,6 +390,7 @@ function GameCard({ card, size = 'normal', onClick, highlighted, faceDown, attac
       <motion.button
         onClick={handleClick}
         disabled={!onClick}
+        data-card-id={card.id}
         className={`relative shrink-0 rounded-lg border-2 text-left ${borderColor} ${sizeClasses} ${
           isTapped ? '-rotate-90' : ''
         } ${
@@ -770,6 +772,249 @@ function getAllCards(state) {
   ]
 }
 
+function centerOf(rect) {
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2,
+  }
+}
+
+function FloatingCardFace({ card, rect, animate, className = '' }) {
+  const { url: imageUrl, status: imageStatus } = useCardImage(card.name)
+  const cc = colorConfig[card.color === 'land' ? 'land' : card.color] || colorConfig.B
+
+  return (
+    <motion.div
+      className={`pointer-events-none fixed z-[998] overflow-hidden rounded-lg border-2 shadow-2xl ${cc.border} ${className}`}
+      style={{ width: rect.width, height: rect.height }}
+      initial={{ left: rect.left, top: rect.top, scale: 1, opacity: 1 }}
+      animate={animate}
+      transition={{ duration: 0.75, ease: [0.34, 1.2, 0.64, 1] }}
+    >
+      <div className={`absolute inset-0 bg-gradient-to-br ${cc.from} ${cc.to} ${imageStatus === 'loaded' ? 'opacity-0' : 'opacity-100'}`} />
+      {imageUrl ? (
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${imageUrl})` }} />
+      ) : null}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent" />
+    </motion.div>
+  )
+}
+
+function SpellTargetResolution({ source, target, sourceRect, targetRect, playerGraveRect, opponentGraveRect, targetGraveRect, mode = 'spell', onPhaseChange, onComplete }) {
+  const [phase, setPhase] = useState('aiming')
+  const isCombat = mode === 'combat'
+
+  useEffect(() => {
+    onPhaseChange?.(phase)
+  }, [phase, onPhaseChange])
+
+  useEffect(() => {
+    const impactAt = isCombat ? 1100 : 1000
+    const graveAt = isCombat ? 1900 : 1500
+    const doneAt = isCombat ? 3000 : 2600
+
+    const t1 = setTimeout(() => setPhase('impact'), impactAt)
+    const t2 = setTimeout(() => setPhase('toGraveyard'), graveAt)
+    const t3 = setTimeout(() => {
+      setPhase('done')
+      onComplete()
+    }, doneAt)
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+      clearTimeout(t3)
+    }
+  }, [onComplete, isCombat])
+
+  if (!sourceRect || !targetRect) return null
+
+  const sourceCenter = centerOf(sourceRect)
+  const targetCenter = centerOf(targetRect)
+  const arrowLength = Math.hypot(targetCenter.x - sourceCenter.x, targetCenter.y - sourceCenter.y)
+  const arrowAngle = Math.atan2(targetCenter.y - sourceCenter.y, targetCenter.x - sourceCenter.x) * (180 / Math.PI)
+
+  const playerGraveCenter = playerGraveRect ? centerOf(playerGraveRect) : sourceCenter
+  const opponentGraveCenter = opponentGraveRect ? centerOf(opponentGraveRect) : targetCenter
+  const loserGraveCenter = targetGraveRect
+    ? centerOf(targetGraveRect)
+    : opponentGraveCenter
+
+  const sourceCc = colorConfig[source.color === 'land' ? 'land' : source.color] || colorConfig.G
+  const spellAccent =
+    source.color === 'B'
+      ? 'border-violet-400 shadow-violet-500/40'
+      : source.color === 'U'
+        ? 'border-sky-400 shadow-sky-500/40'
+        : isCombat
+          ? `${sourceCc.border} shadow-amber-500/40`
+          : 'border-orange-400 shadow-orange-500/40'
+  const arrowColor = isCombat
+    ? '#fbbf24'
+    : source.color === 'B'
+      ? '#a78bfa'
+      : source.color === 'U'
+        ? '#38bdf8'
+        : '#fb923c'
+  const isCounter = source.color === 'U'
+
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[996]">
+      {/* Targeting arrow */}
+      {(phase === 'aiming' || phase === 'impact') && (
+        <motion.div
+          className="absolute origin-left"
+          style={{
+            left: sourceCenter.x,
+            top: sourceCenter.y,
+            width: arrowLength,
+            height: 0,
+            transform: `rotate(${arrowAngle}deg)`,
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: phase === 'impact' ? 1 : 0.85 }}
+        >
+          <motion.div
+            className="relative h-[3px] rounded-full"
+            style={{
+              width: arrowLength,
+              background: `linear-gradient(90deg, transparent, ${arrowColor}, ${arrowColor})`,
+              boxShadow: `0 0 12px ${arrowColor}`,
+            }}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.55, ease: 'easeOut' }}
+          />
+          <div
+            className="absolute right-0 top-1/2 h-0 w-0 -translate-y-1/2"
+            style={{
+              borderTop: '7px solid transparent',
+              borderBottom: '7px solid transparent',
+              borderLeft: `12px solid ${arrowColor}`,
+              filter: `drop-shadow(0 0 6px ${arrowColor})`,
+            }}
+          />
+        </motion.div>
+      )}
+
+      {/* Target highlight ring */}
+      {(phase === 'aiming' || phase === 'impact') && (
+        <motion.div
+          className={`absolute rounded-lg border-2 ${isCounter ? 'border-sky-400' : 'border-red-400'}`}
+          style={{
+            left: targetRect.left - 4,
+            top: targetRect.top - 4,
+            width: targetRect.width + 8,
+            height: targetRect.height + 8,
+          }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{
+            opacity: phase === 'impact' ? [0.6, 1, 0.7] : 0.55,
+            scale: phase === 'impact' ? [1, 1.06, 1] : 1,
+          }}
+          transition={{ duration: phase === 'impact' ? 0.45 : 0.35 }}
+        />
+      )}
+
+      {/* Impact flash */}
+      {phase === 'impact' && (
+        <motion.div
+          className={`absolute rounded-lg ${isCounter ? 'bg-sky-500/30' : 'bg-red-500/30'}`}
+          style={{
+            left: targetRect.left,
+            top: targetRect.top,
+            width: targetRect.width,
+            height: targetRect.height,
+          }}
+          initial={{ opacity: 0.8, scale: 1 }}
+          animate={{ opacity: 0, scale: 1.15 }}
+          transition={{ duration: 0.45 }}
+        />
+      )}
+
+      {/* Attacker travels toward blocker / spell toward target */}
+      {(phase === 'aiming' || phase === 'impact') && (
+        <FloatingCardFace
+          card={source}
+          rect={sourceRect}
+          className={spellAccent}
+          animate={{
+            left: phase === 'impact'
+              ? targetCenter.x - sourceRect.width / 2
+              : sourceCenter.x - sourceRect.width / 2 + (targetCenter.x - sourceCenter.x) * 0.35,
+            top: phase === 'impact'
+              ? targetCenter.y - sourceRect.height / 2
+              : sourceCenter.y - sourceRect.height / 2 + (targetCenter.y - sourceCenter.y) * 0.35 - 24,
+            scale: phase === 'impact' ? 1.08 : 1.12,
+            rotate: phase === 'impact' ? 0 : isCombat ? 8 : -6,
+          }}
+        />
+      )}
+
+      {phase === 'toGraveyard' && isCombat ? (
+        <>
+          <FloatingCardFace
+            card={source}
+            rect={{
+              ...sourceRect,
+              left: targetCenter.x - sourceRect.width / 2,
+              top: targetCenter.y - sourceRect.height / 2,
+            }}
+            className={spellAccent}
+            animate={{
+              left: sourceCenter.x - sourceRect.width / 2,
+              top: sourceCenter.y - sourceRect.height / 2,
+              scale: 1,
+              opacity: 0,
+            }}
+          />
+          <FloatingCardFace
+            card={target}
+            rect={targetRect}
+            className={`${colorConfig[target.color === 'land' ? 'land' : target.color]?.border || 'border-red-400'} shadow-red-500/40`}
+            animate={{
+              left: loserGraveCenter.x - targetRect.width * 0.35,
+              top: loserGraveCenter.y - targetRect.height * 0.35,
+              scale: 0.45,
+              opacity: 0,
+            }}
+          />
+        </>
+      ) : null}
+
+      {phase === 'toGraveyard' && !isCombat ? (
+        <>
+          <FloatingCardFace
+            card={source}
+            rect={targetRect}
+            className={spellAccent}
+            animate={{
+              left: playerGraveCenter.x - sourceRect.width * 0.35,
+              top: playerGraveCenter.y - sourceRect.height * 0.35,
+              scale: 0.45,
+              opacity: 0,
+            }}
+          />
+          <FloatingCardFace
+            card={target}
+            rect={targetRect}
+            animate={{
+              left: opponentGraveCenter.x - targetRect.width * 0.35,
+              top: opponentGraveCenter.y - targetRect.height * 0.35,
+              scale: 0.45,
+              opacity: 0,
+            }}
+          />
+        </>
+      ) : null}
+    </div>
+  )
+}
+
+function filterHiddenCards(cards, hiddenIds) {
+  if (!hiddenIds?.length) return cards
+  return cards.filter((c) => !hiddenIds.includes(c.id))
+}
+
 function PopupCard({ card }) {
   const { url: imageUrl, status: imageStatus } = useCardImage(card.name)
   const cc = colorConfig[card.color === 'land' ? 'land' : card.color] || colorConfig.B
@@ -851,9 +1096,9 @@ function InteractionPopup({ popup, cards, onDismiss }) {
   )
 }
 
-function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, lifeRecoil }) {
+function GameBoard({ lesson, sceneIdx, displayState, hiddenCardIds, onCardClick, phaseBanner, lifeRecoil }) {
   const scene = lesson.scenes[sceneIdx]
-  const { state } = scene
+  const state = displayState ?? scene.state
   const isLessonComplete = scene.phase === 'Lección Completada'
   const entrance = useEntranceAnimation(sceneIdx === 0 ? 0 : -1)
 
@@ -1016,9 +1261,9 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, lifeRecoil }) {
                 <ZonePile type="graveyard" count={opponentGraveyardCount} side="opponent" entrance={boardVisible} imageUrl={opponentGraveUrl} />
               </div>
             </div>
-            {state.opponentBoard.length > 0 && (
+            {filterHiddenCards(state.opponentBoard, hiddenCardIds).length > 0 && (
               <div className="flex flex-wrap gap-1 sm:gap-1.5 justify-center mb-1.5 pl-1">
-                {state.opponentBoard.map((card) => (
+                {filterHiddenCards(state.opponentBoard, hiddenCardIds).map((card) => (
                   <GameCardSmall key={card.id} card={card} visible={true} animate={getCardAnim(card.id)} delay={75} />
                 ))}
               </div>
@@ -1049,9 +1294,9 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, lifeRecoil }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            {state.playerBoard.length > 0 && (
+            {filterHiddenCards(state.playerBoard, hiddenCardIds).length > 0 && (
               <div className="flex flex-wrap gap-1 sm:gap-1.5 justify-center mb-1.5 pl-1">
-                {state.playerBoard.map((card) => {
+                {filterHiddenCards(state.playerBoard, hiddenCardIds).map((card) => {
                   const isHighlighted = isClickBoard && interaction.highlightIds?.includes(card.id)
                   return (
                     <GameCardSmall
@@ -1075,7 +1320,7 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, lifeRecoil }) {
                 <ZonePile type="graveyard" count={playerGraveyardCount} side="player" entrance={boardVisible} imageUrl={playerGraveUrl} />
               </div>
               <div className="flex justify-center items-end py-2 overflow-visible px-2 sm:px-8 max-sm:px-0">
-                {state.playerHand.map((card, i, arr) => {
+                {filterHiddenCards(state.playerHand, hiddenCardIds).map((card, i, arr) => {
                   const isHighlighted = isClickHand && interaction.highlightIds?.includes(card.id)
                   const total = arr.length
                   const mid = (total - 1) / 2
@@ -1265,6 +1510,9 @@ export default function GameDemo({ onBack }) {
   const [transitioning, setTransitioning] = useState(false)
   const [phaseBanner, setPhaseBanner] = useState({ visible: false, phase: '', instruction: '' })
   const [popupData, setPopupData] = useState(null)
+  const [targetAnim, setTargetAnim] = useState(null)
+  const [targetAnimPhase, setTargetAnimPhase] = useState(null)
+  const [targetResolved, setTargetResolved] = useState(false)
   const [attackAnim, setAttackAnim] = useState(null)
   const [hitVisible, setHitVisible] = useState(false)
   const advanceTimer = useRef(null)
@@ -1274,6 +1522,12 @@ export default function GameDemo({ onBack }) {
   const scene = lesson?.scenes[sceneIdx]
   const isLast = sceneIdx >= (lesson?.scenes?.length ?? 1) - 1
 
+  useEffect(() => {
+    setTargetResolved(false)
+    setTargetAnim(null)
+    setTargetAnimPhase(null)
+  }, [sceneIdx])
+
   const advance = useCallback(() => {
     if (advancing) return
     clearTimeout(advanceTimer.current)
@@ -1282,7 +1536,7 @@ export default function GameDemo({ onBack }) {
 
     const cur = lesson.scenes[sceneIdx]
     const next = lesson.scenes[sceneIdx + 1]
-    if (next && cur.interaction.type === 'click_board') {
+    if (next && cur.interaction.type === 'click_board' && !next.popup?.targeting) {
       const cardId = cur.interaction.highlightIds?.[0]
       const card = cardId ? cur.state.playerBoard.find(c => c.id === cardId) : null
       if (card) {
@@ -1366,6 +1620,9 @@ export default function GameDemo({ onBack }) {
 
   const handleSelectLesson = useCallback((l) => {
     prevPhaseRef.current = ''
+    setTargetResolved(false)
+    setTargetAnim(null)
+    setTargetAnimPhase(null)
     setLesson(l)
     setSceneIdx(0)
   }, [])
@@ -1378,6 +1635,42 @@ export default function GameDemo({ onBack }) {
 
   const dismissPopup = useCallback(() => {
     setPopupData(null)
+
+    const currentScene = lesson?.scenes[sceneIdx]
+    const targeting = currentScene?.popup?.targeting
+
+    if (targeting && lesson && sceneIdx > 0) {
+      pendingAttackRef.current = null
+      const prevState = lesson.scenes[sceneIdx - 1].state
+      const allCards = getAllCards(prevState)
+      const source = allCards.find((c) => c.id === targeting.sourceId)
+      const target = allCards.find((c) => c.id === targeting.targetId)
+      if (!source || !target) return
+
+      const targetOnOpponent = (prevState.opponentBoard || []).some((c) => c.id === targeting.targetId)
+
+      window.setTimeout(() => {
+        const sourceEl = document.querySelector(`[data-card-id="${targeting.sourceId}"]`)
+        const targetEl = document.querySelector(`[data-card-id="${targeting.targetId}"]`)
+        const playerGraveEl = document.querySelector('[data-zone="player-graveyard"]')
+        const opponentGraveEl = document.querySelector('[data-zone="opponent-graveyard"]')
+        const playerGraveRect = playerGraveEl?.getBoundingClientRect() ?? null
+        const opponentGraveRect = opponentGraveEl?.getBoundingClientRect() ?? null
+
+        setTargetAnim({
+          source,
+          target,
+          mode: targeting.mode || 'spell',
+          sourceRect: sourceEl?.getBoundingClientRect() ?? null,
+          targetRect: targetEl?.getBoundingClientRect() ?? null,
+          playerGraveRect,
+          opponentGraveRect,
+          targetGraveRect: targetOnOpponent ? opponentGraveRect : playerGraveRect,
+        })
+      }, 80)
+      return
+    }
+
     if (pendingAttackRef.current) {
       const attack = pendingAttackRef.current
       pendingAttackRef.current = null
@@ -1399,7 +1692,7 @@ export default function GameDemo({ onBack }) {
         setHitVisible(false)
       }, 1500)
     }
-  }, [])
+  }, [lesson, sceneIdx])
 
   useEffect(() => {
     if (!lesson) { setPopupData(null); return }
@@ -1418,7 +1711,7 @@ export default function GameDemo({ onBack }) {
   }, [sceneIdx, lesson])
 
   useEffect(() => {
-    if (!scene || !lesson || popupData) return
+    if (!scene || !lesson || popupData || targetAnim) return
     const isLastScene = sceneIdx >= lesson.scenes.length - 1
     if (shouldAuto(scene, isLastScene)) {
       const delay = scene.interaction.type === 'auto'
@@ -1427,7 +1720,28 @@ export default function GameDemo({ onBack }) {
       advanceTimer.current = setTimeout(() => advance(), delay)
       return () => clearTimeout(advanceTimer.current)
     }
-  }, [sceneIdx, scene, lesson, advance, shouldAuto, popupData])
+  }, [sceneIdx, scene, lesson, advance, shouldAuto, popupData, targetAnim])
+
+  const handleTargetAnimComplete = useCallback(() => {
+    setTargetAnim(null)
+    setTargetAnimPhase(null)
+    setTargetResolved(true)
+  }, [])
+
+  const prevSceneState = sceneIdx > 0 ? lesson?.scenes[sceneIdx - 1]?.state : null
+  const hasTargetPopup = scene?.popup?.targeting
+  const pendingTargetResolution = Boolean(hasTargetPopup && prevSceneState && !targetResolved)
+  const boardState = pendingTargetResolution ? prevSceneState : scene?.state
+  const hiddenCardIds = (() => {
+    if (!targetAnim) return []
+    if (targetAnim.mode === 'combat') {
+      const hideTarget = targetAnimPhase === 'toGraveyard' || targetAnimPhase === 'done'
+      return hideTarget
+        ? [targetAnim.source.id, targetAnim.target.id]
+        : [targetAnim.source.id]
+    }
+    return [targetAnim.source.id, targetAnim.target.id]
+  })()
 
   if (!lesson) {
     return <LessonMenu onSelect={handleSelectLesson} onBack={onBack} />
@@ -1439,6 +1753,8 @@ export default function GameDemo({ onBack }) {
         key={lesson.id}
         lesson={lesson}
         sceneIdx={sceneIdx}
+        displayState={boardState}
+        hiddenCardIds={hiddenCardIds}
         onCardClick={handleCardClick}
         phaseBanner={phaseBanner}
         lifeRecoil={hitVisible && attackAnim?.type === 'direct'}
@@ -1542,6 +1858,21 @@ export default function GameDemo({ onBack }) {
           </div>
         </div>
       )}
+
+      {targetAnim ? (
+        <SpellTargetResolution
+          source={targetAnim.source}
+          target={targetAnim.target}
+          sourceRect={targetAnim.sourceRect}
+          targetRect={targetAnim.targetRect}
+          playerGraveRect={targetAnim.playerGraveRect}
+          opponentGraveRect={targetAnim.opponentGraveRect}
+          targetGraveRect={targetAnim.targetGraveRect}
+          mode={targetAnim.mode}
+          onPhaseChange={setTargetAnimPhase}
+          onComplete={handleTargetAnimComplete}
+        />
+      ) : null}
 
       {popupData && (
         <InteractionPopup

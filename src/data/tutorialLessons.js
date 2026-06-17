@@ -510,6 +510,7 @@ export const TUTORIAL_LESSONS = [
           title: '🔥 ¡Combo Izzet!',
           description: 'Lightning Strike elimina al Goblin bloqueador con 3 daños. Slickshot pasa directo y hace 2 daños al oponente.',
           cardIds: ['so', 'og1'],
+          targeting: { sourceId: 'ls', targetId: 'og1' },
         },
         tip: 'Eliminar al bloqueador permite que tu atacante golpee directo. ¡Usá instantáneos en combate!',
         state: {
@@ -780,6 +781,7 @@ export const TUTORIAL_LESSONS = [
           title: '⚔️ ¡Combate Resuelto!',
           description: 'Oso Gris (F:2) vs Goblin (R:1): F > R → Goblin muere. Goblin (F:1) vs Oso (R:2): F < R → Oso sobrevive.',
           cardIds: ['gb2', 'og2'],
+          targeting: { sourceId: 'gb2', targetId: 'og2', mode: 'combat' },
         },
         tip: 'El daño sobrante no se transfiere. La Resistencia absorbe el golpe.',
         state: {
@@ -794,13 +796,15 @@ export const TUTORIAL_LESSONS = [
             { id: 'pl1b', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'bf1b', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'sl', name: 'Lobo de Plata', typeLine: 'Criatura — Felino', manaCost: '{1}{W}', cmc: 2, color: 'W', power: 2, toughness: 2, tapped: false },
-            { id: 'gb2', name: 'Oso Gris', typeLine: 'Criatura — Oso', manaCost: '{1}{G}', cmc: 2, color: 'G', power: 2, toughness: 2, tapped: false },
+            { id: 'gb2', name: 'Oso Gris', typeLine: 'Criatura — Oso', manaCost: '{1}{G}', cmc: 2, color: 'G', power: 2, toughness: 2, tapped: true },
           ],
           opponentBoard: [
             { id: 'om3', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
-            { id: 'og2', name: 'Goblin Rezagado', typeLine: 'Criatura — Goblin', manaCost: '{R}', cmc: 1, color: 'R', power: 1, toughness: 1, tapped: false },
           ],
           opponentHandCount: 4,
+          opponentGraveyard: [
+            { id: 'og2', name: 'Goblin Rezagado', typeLine: 'Criatura — Goblin', manaCost: '{R}', cmc: 1, color: 'R', power: 1, toughness: 1, tapped: false },
+          ],
         },
         interaction: { type: 'auto', delay: 3500 },
       },
@@ -948,6 +952,7 @@ export const TUTORIAL_LESSONS = [
           title: '💥 ¡Contrarrestado!',
           description: 'Cancelar anula el Garra Ígnea. El hechizo nunca resuelve y el dragón va directo al cementerio.',
           cardIds: ['can1', 'od1'],
+          targeting: { sourceId: 'can1', targetId: 'od1' },
         },
         tip: 'Un hechizo contrarrestado nunca resuelve. No hace daño, no entra al campo. ¡Defensa total!',
         state: {
@@ -1070,6 +1075,7 @@ export const TUTORIAL_LESSONS = [
           title: '💀 ¡Destruido!',
           description: 'Asesinato destruye al Gremlin de Sulfuro al instante. El negro elimina criaturas con una eficacia que ningún otro color iguala.',
           cardIds: ['mur1', 'og1b'],
+          targeting: { sourceId: 'mur1', targetId: 'og1b' },
         },
         tip: 'Los conjuros de eliminación como Asesinato son esenciales para controlar el tablero. Sin criaturas, el oponente no puede atacar.',
         state: {
