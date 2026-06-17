@@ -305,18 +305,17 @@ function GameCard({ card, size = 'normal', onClick, highlighted, faceDown, attac
   if (faceDown) {
     return (
       <div
-        className={`relative shrink-0 rounded-lg border-2 ${borderColor} ${sizeClasses} flex items-center justify-center transition-all duration-300 ${visible ? (useAnim ? 'animate-zone-appear' : 'opacity-100') : 'opacity-0 scale-75'}`}
+        className={`relative shrink-0 rounded-lg border-2 ${borderColor} ${sizeClasses} overflow-hidden transition-all duration-300 ${visible ? (useAnim ? 'animate-zone-appear' : 'opacity-100') : 'opacity-0 scale-75'}`}
         style={useAnim ? { animationDelay: animDelay } : {}}
       >
-        <div className="flex flex-col items-center gap-1 opacity-40">
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-          </svg>
-          <span className="text-[10px] font-semibold tracking-wider">MAZO</span>
+        <img
+          src={CARD_BACK_URL}
+          alt="Dorso"
+          className="h-full w-full object-cover"
+        />
       </div>
-    </div>
-  )
-}
+    )
+  }
 
   const isTapped = card.tapped
   const isHighlighted = highlighted
@@ -810,18 +809,37 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, lifeRecoil }) {
           <div className={`mb-3 transition-all duration-500 delay-75 ${boardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
             {/* Opponent zones row: hand + library/graveyard */}
             <div className="flex items-start justify-center gap-3 mb-1.5">
-              <div className="flex items-center gap-1">
-                {Array.from({ length: state.opponentHandCount }).map((_, i) => (
-                  <GameCard
-                    key={i}
-                    card={{ color: 'land', name: '', typeLine: '', manaCost: '', cmc: 0, power: null, toughness: null, tapped: false }}
-                    faceDown
-                    size="small"
-                    visible={true}
-                    animate={sceneIdx === 0 ? entrance : false}
-                    index={i}
-                  />
-                ))}
+              <div className="flex justify-center items-start py-2 overflow-visible">
+                {Array.from({ length: state.opponentHandCount }).map((_, i, arr) => {
+                  const total = arr.length
+                  const mid = (total - 1) / 2
+                  const offset = i - mid
+                  const rotation = offset * 2.5
+                  const zIdx = total - Math.abs(Math.round(offset))
+                  const baseOverlap = total <= 3 ? 43 : total <= 4 ? 34 : total <= 5 ? 28 : 22
+                  const overlapPx = isMobile ? baseOverlap + 8 : baseOverlap
+                  return (
+                    <div
+                      key={i}
+                      className="relative shrink-0"
+                      style={{
+                        marginLeft: i === 0 ? 0 : `-${overlapPx}px`,
+                        zIndex: zIdx,
+                        transform: `rotate(${rotation}deg)`,
+                        transformOrigin: 'top center',
+                      }}
+                    >
+                      <GameCard
+                        card={{ color: 'land', name: '', typeLine: '', manaCost: '', cmc: 0, power: null, toughness: null, tapped: false }}
+                        faceDown
+                        size="small"
+                        visible={true}
+                        animate={sceneIdx === 0 ? entrance : false}
+                        index={i}
+                      />
+                    </div>
+                  )
+                })}
               </div>
               <div className="flex items-center gap-2">
                 <ZonePile type="library" count={opponentDeckCount} side="opponent" entrance={boardVisible} imageUrl={CARD_BACK_URL} />

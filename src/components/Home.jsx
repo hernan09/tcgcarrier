@@ -143,7 +143,7 @@ function HeroSection({ onExplore }) {
   )
 }
 
-function ColorCard({ color, index, isActive, onClick }) {
+function ColorCard({ color, index, isActive, onClick, cardImageUrls }) {
   const [ref, inView] = useInView(0.1)
 
   return (
@@ -193,14 +193,38 @@ function ColorCard({ color, index, isActive, onClick }) {
         </span>
       </div>
 
-      {isActive && (
-        <div className="mt-4 sm:hidden" style={{ animation: 'fadeSlideCard 0.8s ease-out both' }}>
-          <img
-            src={`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(color.cards[0])}&format=image`}
-            alt={color.cards[0]}
-            className="mx-auto w-28 rounded-lg border border-zinc-700/50 shadow-lg"
-            loading="lazy"
-          />
+      {isActive && cardImageUrls && (
+        <div className="mt-5 flex flex-row flex-nowrap items-stretch justify-center gap-3">
+          {color.cards.map((cardName, i) => (
+            <div
+              key={cardName}
+              className="group w-28 sm:w-36 min-w-0"
+              style={{ animation: `fadeSlideCard 0.5s ease-out ${i * 0.15}s both` }}
+            >
+              <div className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900/60 transition-all duration-300 group-hover:border-zinc-700 group-hover:shadow-xl">
+                <div className="aspect-[5/7] bg-zinc-800/50">
+                  {cardImageUrls[i] ? (
+                    <img
+                      src={cardImageUrls[i]}
+                      alt={cardName}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      <svg className="h-6 w-6 animate-spin text-zinc-600" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                <div className="border-t border-zinc-800 p-2">
+                  <p className="text-center text-[11px] font-medium text-zinc-300 leading-tight">{cardName}</p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </button>
@@ -265,6 +289,7 @@ function ColorCarousel() {
               index={i}
               isActive={i === activeIndex}
               onClick={() => setActiveIndex(i)}
+              cardImageUrls={color.cards.map(name => loadedImages[name])}
             />
           ))}
         </div>
@@ -298,39 +323,6 @@ function ColorCarousel() {
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
           </button>
-        </div>
-
-        <div className={`mt-6 flex flex-row flex-nowrap items-stretch justify-center gap-3 overflow-x-auto pb-2 ${inView ? '' : 'opacity-0'}`}>
-          {COLORS[activeIndex].cards.map((cardName, i) => (
-            <div
-              key={cardName}
-              className="group w-28 shrink-0 sm:w-36"
-              style={{ animation: `fadeSlideCard 0.8s ease-out ${i * 0.2}s both` }}
-            >
-              <div className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900/60 transition-all duration-300 group-hover:border-zinc-700 group-hover:shadow-xl">
-                <div className="aspect-[5/7] bg-zinc-800/50">
-                  {loadedImages[cardName] ? (
-                    <img
-                      src={loadedImages[cardName]}
-                      alt={cardName}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <svg className="h-6 w-6 animate-spin text-zinc-600" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-                <div className="border-t border-zinc-800 p-2">
-                  <p className="text-center text-[11px] font-medium text-zinc-300 leading-tight">{cardName}</p>
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 
