@@ -240,10 +240,10 @@ function ZonePile({ type, count, side = 'player', entrance = true, imageUrl }) {
   return (
     <div className={`relative flex flex-col items-center gap-1 transition-all duration-500 ${entrance ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
       style={{ animationDelay: `${side === 'player' ? 300 : 150}ms` }}>
-      <div className="relative h-16 w-11 sm:h-20 sm:w-14 max-sm:h-10 max-sm:w-[26px]">
-        <div className={`absolute inset-0 rounded-md border ${borderColor} bg-gradient-to-b from-zinc-900 to-zinc-950 rotate-6 translate-x-1`} />
-        <div className={`absolute inset-0 rounded-md border ${borderColor} bg-gradient-to-b from-zinc-900 to-zinc-950 -rotate-3 -translate-x-0.5`} />
-        <div className={`absolute inset-0 rounded-md border-2 ${borderColor} overflow-hidden`}>
+      <div className="relative w-[90px] h-[130px] max-sm:w-[60px] max-sm:h-[86px]">
+        <div className={`absolute inset-0 rounded-lg border ${borderColor} bg-gradient-to-b from-zinc-900 to-zinc-950 rotate-6 translate-x-1`} />
+        <div className={`absolute inset-0 rounded-lg border ${borderColor} bg-gradient-to-b from-zinc-900 to-zinc-950 -rotate-3 -translate-x-0.5`} />
+        <div className={`absolute inset-0 rounded-lg border-2 ${borderColor} overflow-hidden`}>
           {imageUrl ? (
             <img
               src={imageUrl}
@@ -264,7 +264,7 @@ function ZonePile({ type, count, side = 'player', entrance = true, imageUrl }) {
             </div>
           )}
         </div>
-        <span className={`absolute -top-1.5 -right-1.5 flex min-w-[18px] items-center justify-center rounded-full px-1 text-[9px] font-bold leading-tight ${
+        <span className={`absolute -top-2 -right-2 flex min-w-[22px] items-center justify-center rounded-full px-1 text-[11px] font-bold leading-tight shadow-lg ${
           isLibrary ? 'bg-amber-600 text-white' : 'bg-zinc-600 text-white'
         }`}>
           {count}
@@ -597,7 +597,14 @@ function AttackFly({ card, damage }) {
 
   return (
     <div className="fixed inset-0 z-[997] pointer-events-none flex items-center justify-center">
-      <div className="animate-card-attack absolute bottom-[32%] left-1/2 w-[90px] h-[126px] max-sm:w-[64px] max-sm:h-[90px] rounded-xl border-[3px] overflow-hidden shadow-2xl shadow-red-500/30 border-red-500/50">
+      {/* Wind/trail streaks */}
+      <div className="absolute bottom-[32%] left-1/2"><div className="w-[140px] h-[3px] -translate-x-1/2 bg-gradient-to-r from-transparent via-red-400/50 to-transparent rounded-full blur-[2px] animate-wind-streak" /></div>
+      <div className="absolute bottom-[32%] left-1/2 ml-5"><div className="w-[100px] h-[2px] -translate-x-1/2 bg-gradient-to-r from-transparent via-orange-400/40 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.12s' }} /></div>
+      <div className="absolute bottom-[32%] left-1/2 -ml-4"><div className="w-[80px] h-[4px] -translate-x-1/2 bg-gradient-to-r from-transparent via-red-400/30 to-transparent rounded-full blur-sm animate-wind-streak" style={{ animationDelay: '0.22s' }} /></div>
+      <div className="absolute bottom-[32%] left-1/2 ml-8"><div className="w-[60px] h-[2px] -translate-x-1/2 bg-gradient-to-r from-transparent via-yellow-400/30 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.08s' }} /></div>
+
+      {/* Card */}
+      <div className="animate-card-attack absolute bottom-[32%] left-1/2 w-[90px] h-[126px] max-sm:w-[64px] max-sm:h-[90px] -translate-x-1/2 rounded-xl border-[3px] overflow-hidden shadow-2xl shadow-red-500/30 border-red-500/50">
         <div className={`absolute inset-0 bg-gradient-to-br ${cc.from} ${cc.to} transition-opacity duration-300 ${imageStatus === 'loaded' ? 'opacity-0' : 'opacity-100'}`} />
         {imageUrl && (
           <div
@@ -690,7 +697,7 @@ function InteractionPopup({ popup, cards, onDismiss }) {
   )
 }
 
-function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, hitVisible }) {
+function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, lifeRecoil }) {
   const scene = lesson.scenes[sceneIdx]
   const { state } = scene
   const isLessonComplete = scene.phase === 'Lección Completada'
@@ -791,127 +798,129 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, hitVisible }) {
             <svg className="h-4 w-4 text-red-400" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
-            <span className={`text-sm font-bold text-red-400 tabular-nums ${hitVisible && attackAnim?.type === 'direct' ? 'animate-life-recoil' : ''}`}>{state.opponentLife}</span>
+            <span className={`text-sm font-bold text-red-400 tabular-nums ${lifeRecoil ? 'animate-life-recoil' : ''}`}>{state.opponentLife}</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden text-xs text-zinc-500 sm:inline">P. {sceneIdx + 1}/{lesson.scenes.length}</span>
           </div>
         </div>
 
-        {/* Opponent side */}
-        <div className={`mb-3 transition-all duration-500 delay-75 ${boardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
-          {/* Opponent zones row: hand + library/graveyard */}
-          <div className="flex items-start justify-center gap-3 mb-1.5">
-            <div className="flex items-center gap-1">
-              {Array.from({ length: state.opponentHandCount }).map((_, i) => (
-                <GameCard
-                  key={i}
-                  card={{ color: 'land', name: '', typeLine: '', manaCost: '', cmc: 0, power: null, toughness: null, tapped: false }}
-                  faceDown
-                  size="small"
-                  visible={true}
-                  animate={sceneIdx === 0 ? entrance : false}
-                  index={i}
-                />
-              ))}
-            </div>
-            <div className="flex items-center gap-2">
-              <ZonePile type="library" count={opponentDeckCount} side="opponent" entrance={boardVisible} imageUrl={CARD_BACK_URL} />
-              <ZonePile type="graveyard" count={opponentGraveyardCount} side="opponent" entrance={boardVisible} imageUrl={opponentGraveUrl} />
-            </div>
-          </div>
-          {state.opponentBoard.length > 0 && (
-            <div className="flex flex-wrap gap-1 sm:gap-1.5 justify-center mb-1.5 pl-1">
-              {state.opponentBoard.map((card) => (
-                <GameCardSmall key={card.id} card={card} visible={true} animate={getCardAnim(card.id)} delay={75} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Divider */}
-        <div className={`relative my-1.5 sm:my-2 transition-all duration-500 delay-150 ${boardVisible ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-amber-900/30" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="battlefield-field bg-zinc-950/60 backdrop-blur-sm px-3 py-0.5 text-[9px] sm:text-[10px] font-bold text-amber-600/80 uppercase tracking-[0.2em] rounded-full border border-amber-900/20">
-              CAMPO DE BATALLA
-            </span>
-          </div>
-        </div>
-
-        {/* Player side */}
-        <div className={`mb-2 transition-all duration-500 delay-200 ${boardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
-          {state.playerBoard.length > 0 && (
-            <div className="flex flex-wrap gap-1 sm:gap-1.5 justify-center mb-1.5 pl-1">
-              {state.playerBoard.map((card) => {
-                const isHighlighted = isClickBoard && interaction.highlightIds?.includes(card.id)
-                return (
-                  <GameCardSmall
-                    key={card.id}
-                    card={card}
-                    onClick={isHighlighted ? () => onCardClick(card.id, 'board') : null}
-                    highlighted={isHighlighted}
-                    tooltipMessage={isHighlighted ? getTooltipMessage(card, 'click_board') : null}
+        <div className="flex-1 flex flex-col justify-center">
+          {/* Opponent side */}
+          <div className={`mb-3 transition-all duration-500 delay-75 ${boardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
+            {/* Opponent zones row: hand + library/graveyard */}
+            <div className="flex items-start justify-center gap-3 mb-1.5">
+              <div className="flex items-center gap-1">
+                {Array.from({ length: state.opponentHandCount }).map((_, i) => (
+                  <GameCard
+                    key={i}
+                    card={{ color: 'land', name: '', typeLine: '', manaCost: '', cmc: 0, power: null, toughness: null, tapped: false }}
+                    faceDown
+                    size="small"
                     visible={true}
-                    animate={getCardAnim(card.id)}
-                    delay={200}
+                    animate={sceneIdx === 0 ? entrance : false}
+                    index={i}
                   />
-                )
-              })}
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <ZonePile type="library" count={opponentDeckCount} side="opponent" entrance={boardVisible} imageUrl={CARD_BACK_URL} />
+                <ZonePile type="graveyard" count={opponentGraveyardCount} side="opponent" entrance={boardVisible} imageUrl={opponentGraveUrl} />
+              </div>
             </div>
-          )}
-          {/* Player zones row: library/graveyard + hand */}
-          <div className="flex items-end justify-center gap-2 sm:gap-3 mt-1.5">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <ZonePile type="library" count={playerDeckCount} side="player" entrance={boardVisible} imageUrl={CARD_BACK_URL} />
-              <ZonePile type="graveyard" count={playerGraveyardCount} side="player" entrance={boardVisible} imageUrl={playerGraveUrl} />
+            {state.opponentBoard.length > 0 && (
+              <div className="flex flex-wrap gap-1 sm:gap-1.5 justify-center mb-1.5 pl-1">
+                {state.opponentBoard.map((card) => (
+                  <GameCardSmall key={card.id} card={card} visible={true} animate={getCardAnim(card.id)} delay={75} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div className={`relative my-1.5 sm:my-2 transition-all duration-500 delay-150 ${boardVisible ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-amber-900/30" />
             </div>
-            <div className="flex justify-center items-end py-2 overflow-visible px-2 sm:px-8 max-sm:px-0">
-              {state.playerHand.map((card, i, arr) => {
-                const isHighlighted = isClickHand && interaction.highlightIds?.includes(card.id)
-                const total = arr.length
-                const mid = (total - 1) / 2
-                const offset = i - mid
-                const baseRotation = isMobile && total > 5 ? 2.5 : 3
-                const rotation = offset * baseRotation
-                const isSelected = selectedCardId === card.id
-                const zIdx = isSelected ? 999 : total - Math.abs(Math.round(offset))
-                const baseOverlap = total <= 3 ? 56 : total <= 4 ? 44 : total <= 5 ? 36 : 28
-                const overlapPx = isMobile ? baseOverlap + 10 : baseOverlap
-                const lift = isSelected ? '-translate-y-4 sm:-translate-y-6' : ''
-                return (
-                  <div
-                    key={card.id}
-                    className={`relative shrink-0 transition-transform duration-200 ${lift}`}
-                    style={{
-                      marginLeft: i === 0 ? 0 : `-${overlapPx}px`,
-                      zIndex: zIdx,
-                      transform: `rotate(${rotation}deg)`,
-                      transformOrigin: 'bottom center',
-                    }}
-                  >
-                    <GameCard
+            <div className="relative flex justify-center">
+              <span className="battlefield-field bg-zinc-950/60 backdrop-blur-sm px-3 py-0.5 text-[9px] sm:text-[10px] font-bold text-amber-600/80 uppercase tracking-[0.2em] rounded-full border border-amber-900/20">
+                CAMPO DE BATALLA
+              </span>
+            </div>
+          </div>
+
+          {/* Player side */}
+          <div className={`mb-2 transition-all duration-500 delay-200 ${boardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
+            {state.playerBoard.length > 0 && (
+              <div className="flex flex-wrap gap-1 sm:gap-1.5 justify-center mb-1.5 pl-1">
+                {state.playerBoard.map((card) => {
+                  const isHighlighted = isClickBoard && interaction.highlightIds?.includes(card.id)
+                  return (
+                    <GameCardSmall
+                      key={card.id}
                       card={card}
-                      size="hand"
-                      onClick={() => {
-                        if (isHighlighted) {
-                          setSelectedCardId(null)
-                          onCardClick(card.id, 'hand')
-                        } else {
-                          setSelectedCardId(selectedCardId === card.id ? null : card.id)
-                        }
-                      }}
+                      onClick={isHighlighted ? () => onCardClick(card.id, 'board') : null}
                       highlighted={isHighlighted}
-                      tooltipMessage={isHighlighted ? getTooltipMessage(card, 'click_hand') : null}
+                      tooltipMessage={isHighlighted ? getTooltipMessage(card, 'click_board') : null}
                       visible={true}
                       animate={getCardAnim(card.id)}
-                      delay={250}
+                      delay={200}
                     />
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
+            )}
+            {/* Player zones row: library/graveyard + hand */}
+            <div className="flex items-end justify-center gap-2 sm:gap-3 mt-1.5">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <ZonePile type="library" count={playerDeckCount} side="player" entrance={boardVisible} imageUrl={CARD_BACK_URL} />
+                <ZonePile type="graveyard" count={playerGraveyardCount} side="player" entrance={boardVisible} imageUrl={playerGraveUrl} />
+              </div>
+              <div className="flex justify-center items-end py-2 overflow-visible px-2 sm:px-8 max-sm:px-0">
+                {state.playerHand.map((card, i, arr) => {
+                  const isHighlighted = isClickHand && interaction.highlightIds?.includes(card.id)
+                  const total = arr.length
+                  const mid = (total - 1) / 2
+                  const offset = i - mid
+                  const baseRotation = isMobile && total > 5 ? 2.5 : 3
+                  const rotation = offset * baseRotation
+                  const isSelected = selectedCardId === card.id
+                  const zIdx = isSelected ? 999 : total - Math.abs(Math.round(offset))
+                  const baseOverlap = total <= 3 ? 56 : total <= 4 ? 44 : total <= 5 ? 36 : 28
+                  const overlapPx = isMobile ? baseOverlap + 10 : baseOverlap
+                  const lift = isSelected ? '-translate-y-4 sm:-translate-y-6' : ''
+                  return (
+                    <div
+                      key={card.id}
+                      className={`relative shrink-0 transition-transform duration-200 ${lift}`}
+                      style={{
+                        marginLeft: i === 0 ? 0 : `-${overlapPx}px`,
+                        zIndex: zIdx,
+                        transform: `rotate(${rotation}deg)`,
+                        transformOrigin: 'bottom center',
+                      }}
+                    >
+                      <GameCard
+                        card={card}
+                        size="hand"
+                        onClick={() => {
+                          if (isHighlighted) {
+                            setSelectedCardId(null)
+                            onCardClick(card.id, 'hand')
+                          } else {
+                            setSelectedCardId(selectedCardId === card.id ? null : card.id)
+                          }
+                        }}
+                        highlighted={isHighlighted}
+                        tooltipMessage={isHighlighted ? getTooltipMessage(card, 'click_hand') : null}
+                        visible={true}
+                        animate={getCardAnim(card.id)}
+                        delay={250}
+                      />
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -944,7 +953,7 @@ function GameBoard({ lesson, sceneIdx, onCardClick, phaseBanner, hitVisible }) {
         )}
 
         {/* Player life + progress bar */}
-        <div className={`mt-auto pt-2 transition-all duration-500 delay-300 ${boardVisible ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`pt-2 transition-all duration-500 delay-300 ${boardVisible ? 'opacity-100' : 'opacity-0'}`}>
           <div className="flex items-center justify-between rounded-xl border border-zinc-800/50 bg-zinc-950/40 backdrop-blur-sm px-3 py-2">
             <div className="flex items-center gap-1.5">
               <svg className="h-4 w-4 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
@@ -1163,7 +1172,7 @@ export default function GameDemo({ onBack }) {
       if (attack.type === 'combat') {
         setTimeout(() => setHitVisible(true), 200)
       } else {
-        setTimeout(() => setHitVisible(true), 950)
+        setTimeout(() => setHitVisible(true), 600)
       }
       setTimeout(() => {
         setAttackAnim(null)
@@ -1212,7 +1221,7 @@ export default function GameDemo({ onBack }) {
         sceneIdx={sceneIdx}
         onCardClick={handleCardClick}
         phaseBanner={phaseBanner}
-        hitVisible={hitVisible}
+        lifeRecoil={hitVisible && attackAnim?.type === 'direct'}
       />
 
       {/* Bottom tutorial panel */}

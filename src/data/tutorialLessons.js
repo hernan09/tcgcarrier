@@ -12,7 +12,7 @@ export const TUTORIAL_LESSONS = [
     scenes: [
       {
         phase: 'Inicio del Turno',
-        instruction: 'Bienvenido, Planeswalker. Tienes 7 cartas en mano. Tu meta: jugar tierras, invocar criaturas y reducir la vida del oponente a 0.',
+        instruction: 'Bienvenido. Tu meta es reducir la vida del oponente a 0.',
         tip: 'El verde es el color de la naturaleza. Se especializa en criar criaturas grandes y generar maná extra.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -33,7 +33,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: 'Juega un **Bosque**. Haz clic en la carta resaltada en tu mano.',
+        instruction: 'Juega un **Bosque** desde tu mano.',
         tip: 'Solo puedes jugar UNA tierra por turno. Las tierras son tu fuente de maná.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -54,7 +54,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: 'Bosque en juego. Ahora puedes generar {G}. Gíralo para pagar hechizos.',
+        instruction: 'Bosque genera {G}. Gíralo para pagar hechizos.',
         tip: 'Gira una tierra para añadir maná a tu reserva. El maná sobrante se pierde al final de cada fase.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -76,7 +76,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: 'Invoca a **Llanowar Elves**. Cuesta {G}. Haz clic en ella.',
+        instruction: 'Invoca **Llanowar Elves** por {G}.',
         tip: 'El costo {G} significa 1 maná verde. Gira el Bosque para pagarlo.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -98,7 +98,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: 'Llanowar Elves (1/1) entró al campo. Tiene *enfermedad de invocación* — no podrá atacar hasta tu próximo turno.',
+        instruction: 'Llanowar Elves tiene *enfermedad de invocación* hasta tu próximo turno.',
         tip: 'Las criaturas recién invocadas no pueden atacar hasta tu próximo turno.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -120,7 +120,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: 'Terminaste tu fase principal. Pasa a combate.',
+        instruction: 'Termina tu fase principal y pasa a combate.',
         state: {
           playerLife: 20, opponentLife: 20,
           playerHand: [
@@ -141,7 +141,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase de Combate',
-        instruction: 'Llanowar Elves no puede atacar (enfermedad de invocación). Termina tu turno.',
+        instruction: 'Termina tu turno.',
         tip: 'Solo criaturas enderezadas y sin enfermedad de invocación pueden atacar.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -163,7 +163,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Turno del Oponente',
-        instruction: 'El oponente juega una Montaña y pasa. Observa cómo gestiona sus recursos.',
+        instruction: 'El oponente juega una Montaña y pasa el turno.',
         tip: 'En Magic los turnos se alternan. Ambos jugadores juegan tierras y lanzan hechizos.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -187,7 +187,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Inicio del Turno',
-        instruction: '**¡Robas una carta!** Crecimiento Gigante — un instantáneo que da +3/+3 hasta el final del turno.',
+        instruction: '**¡Robas una carta!** **Crecimiento Gigante** da +3/+3 a una criatura.',
         tip: 'Cada turno robas UNA carta. Los instantáneos pueden lanzarse en cualquier momento, incluso en combate.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -212,7 +212,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: 'Juega tu segunda tierra. Haz clic en el **Bosque** resaltado.',
+        instruction: 'Juega tu segunda tierra.',
         tip: 'Con dos tierras podrás lanzar hechizos más grandes como el Oso Gris.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -237,7 +237,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: 'Invoca al **Oso Gris** ({1}{G}). Gira ambos Bosques para pagarlo. Haz clic en él.',
+        instruction: 'Invoca al **Oso Gris** por {1}{G}.',
         tip: '{1} = 1 maná de cualquier color. {G} = 1 maná verde. Total: 2 manás.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -262,7 +262,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: '¡Oso Gris (2/2) en el campo! Ahora tienes Llanowar Elves (1/1) y Oso Gris (2/2). Pasa a combate.',
+        instruction: 'Tienes dos criaturas. Pasa a combate.',
         state: {
           playerLife: 20, opponentLife: 20,
           playerHand: [
@@ -286,7 +286,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase de Combate',
-        instruction: 'Ataca con el **Oso Gris**. Hará 2 daños al oponente. Haz clic en él.',
+        instruction: 'Ataca con el **Oso Gris**.',
         tip: 'Puedes atacar con cualquier criatura enderezada. El Oso Gris no tiene enfermedad de invocación.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -311,7 +311,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase de Combate',
-        instruction: '¡Golpe directo! El oponente no tiene bloqueadores. Oso Gris hace **2 daños**. Vida: 20 → 18.',
+        instruction: '¡Golpe directo! El **Oso Gris** hace 2 daños.',
         popup: {
           title: '⚔️ ¡Golpe Directo!',
           description: 'Oso Gris ataca sin bloqueadores. Hace 2 daños directos a la vida del oponente.',
@@ -341,7 +341,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Lección Completada',
-        instruction: '¡Lección completa! Aprendiste:\n\n🃏 **Jugar tierras** para generar maná\n⚔️ **Invocar criaturas** pagando costos\n🎯 **Atacar** para reducir la vida',
+        instruction: 'Lección completa: jugar tierras, invocar criaturas y atacar.',
         state: {
           playerLife: 20, opponentLife: 18,
           playerHand: [
@@ -378,7 +378,7 @@ export const TUTORIAL_LESSONS = [
     scenes: [
       {
         phase: 'Inicio del Turno',
-        instruction: 'Bienvenido a Izzet. Este es tu turno. Tienes **4 tierras** y 3 cartas en mano.\n\nEl oponente tiene un **Goblin Rezagado** (1/1). Tu plan: jugar **Slickshot Show-Off** ({1}{R}) que tiene Celeridad, atacar, y si te bloquea, usar **Lightning Strike** ({1}{R}) para eliminar al Goblin.',
+        instruction: 'Invoca **Slickshot Show-Off** con Celeridad y prepara **Lightning Strike** para eliminar bloqueadores.',
         tip: 'Izzet lanza hechizos rápido. Celeridad permite atacar el mismo turno que invocás.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -403,7 +403,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: 'Invoca **Slickshot Show-Off** ({1}{R}). Usá una Montaña para {R} y la Isla para {1}. Haz clic en Slickshot.',
+        instruction: 'Invoca **Slickshot Show-Off** por {1}{R}.',
         tip: 'Slickshot cuesta {1}{R} = 1 maná genérico + 1 maná rojo.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -428,7 +428,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: '¡Slickshot (2/1) con Celeridad en el campo! Todavía te quedan **2 Montañas** sin girar para Lightning Strike. Pasa a combate.',
+        instruction: 'Slickshot tiene Celeridad. Pasa a combate.',
         tip: 'Gastaste {R}{1} (Montaña + Isla). Te quedan 2 Montañas listas para Lightning Strike.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -453,7 +453,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase de Combate',
-        instruction: 'Declará atacante: haz clic en **Slickshot**.',
+        instruction: 'Ataca con **Slickshot**.',
         tip: 'Celeridad permite atacar sin esperar al próximo turno.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -478,7 +478,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase de Combate',
-        instruction: '¡El oponente bloquea con su Goblin (1/1)! Tenés 2 Montañas listas. ¡Lanzá **Lightning Strike** ({1}{R}) para eliminar al Goblin antes del daño!',
+        instruction: 'Lanzá **Lightning Strike** para eliminar al bloqueador.',
         tip: 'Los instantáneos se lanzan en cualquier momento. Gastá las 2 Montañas para pagar {1}{R}.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -503,7 +503,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase de Combate',
-        instruction: '¡Lightning Strike hace **3 daños** al Goblin! Muere. Slickshot golpea directo: **2 daños** al oponente. ¡Jugada perfecta!',
+        instruction: '¡**Lightning Strike** elimina al Goblin y **Slickshot** golpea directo!',
         popup: {
           title: '🔥 ¡Combo Izzet!',
           description: 'Lightning Strike elimina al Goblin bloqueador con 3 daños. Slickshot pasa directo y hace 2 daños al oponente.',
@@ -537,7 +537,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Lección Completada',
-        instruction: '¡Lección completa! Aprendiste:\n\n🔥 **Rojo + Azul (Izzet)**: Daño directo + conocimiento\n⚡ **Celeridad**: Atacar el mismo turno\n🎯 **Instantáneos en combate**: Eliminar bloqueadores',
+        instruction: 'Lección completa: Celeridad, instantáneos en combate y el poder Izzet.',
         state: {
           playerLife: 20, opponentLife: 18,
           playerHand: [
@@ -578,7 +578,7 @@ export const TUTORIAL_LESSONS = [
     scenes: [
       {
         phase: 'Inicio del Turno',
-        instruction: 'Bienvenido. Hoy aprenderás **Fuerza vs Resistencia**.\n\n**Fuerza** = daño que hace. **Resistencia** = daño que aguanta.\n\nTienes 4 tierras (2 Llanura + 2 Bosque) en juego. Invocarás **Lobo de Plata** y **Oso Gris** este turno.',
+        instruction: 'Aprende **Fuerza vs Resistencia**: Fuerza es daño, Resistencia es vida.',
         tip: 'Si tu Fuerza ≥ Resistencia enemiga, tu criatura gana.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -602,7 +602,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: 'Invoca al **Lobo de Plata** ({1}{W}). Una Llanura da {W}, un Bosque da {1}. Mira sus números: **F:2 / R:2**.',
+        instruction: 'Invoca al **Lobo de Plata** (F:2 / R:2) por {1}{W}.',
         tip: 'Fuerza (izquierda) y Resistencia (derecha) aparecen en cada carta de criatura.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -626,7 +626,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: '¡**Lobo de Plata (F:2 / R:2)** en juego! Gastaste 1 Llanura + 1 Bosque. Te quedan 2 tierras para el Oso Gris.',
+        instruction: 'Lobo de Plata F:2 / R:2. Invoca al **Oso Gris** ahora.',
         tip: 'Con 4 tierras podés invocar dos criaturas de coste 2 en un turno.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -650,7 +650,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: 'Invoca al **Oso Gris (F:2 / R:2)** ({1}{G}). Gira el Bosque para {G} + una Llanura para {1}.',
+        instruction: 'Invoca al **Oso Gris** (F:2 / R:2) por {1}{G}.',
         state: {
           playerLife: 20, opponentLife: 20,
           playerHand: [
@@ -673,7 +673,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: '¡Dos criaturas 2/2! Un ejército equilibrado. Pasa a combate.',
+        instruction: 'Tienes dos criaturas 2/2. Pasa a combate.',
         state: {
           playerLife: 20, opponentLife: 20,
           playerHand: [
@@ -696,7 +696,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Turno del Oponente',
-        instruction: 'El oponente juega una Montaña e invoca un **Goblin (1/1)**.\n\nF: **1** / R: **1** — con solo 1 de Resistencia, cualquier Fuerza ≥ 2 lo destruye.',
+        instruction: 'El oponente invoca un **Goblin** F:1 / R:1, muy frágil.',
         tip: 'Resistencia baja = frágil. Tus 2/2 son mucho más resistentes.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -721,7 +721,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Inicio del Turno',
-        instruction: '**¡Robas una carta!** Tus tierras se enderezan. Tienes Lobo (2/2) y Oso (2/2) listos.\n\nEl oponente tiene un Goblin (1/1). Tú eres más fuerte. ¡A atacar!',
+        instruction: 'Tus criaturas 2/2 son más fuertes que el Goblin (1/1).',
         state: {
           playerLife: 20, opponentLife: 20,
           playerHand: [
@@ -746,7 +746,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase de Combate',
-        instruction: 'Ataca con el **Oso Gris**. Mira: Oso **F:2** vs Goblin **R:1**.\n\nSi el Goblin bloquea, el Oso le hace 2 de daño → suficiente para matarlo. El Oso recibe 1 pero sobrevive (R:2 > 1).',
+        instruction: 'Ataca con el **Oso Gris** (F:2) que vence al Goblin (R:1).',
         tip: 'F ≥ R enemiga = ganas. La diferencia decide quién vive.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -772,7 +772,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase de Combate',
-        instruction: '¡El **Goblin (1/1)** bloquea! Matemáticas:\n\n🐻 Oso: F **2** > R **1** → Goblin **muere** 💀\n👹 Goblin: F **1** < R **2** → Oso **sobrevive** ✅',
+        instruction: 'F:2 > R:1: el Goblin muere, el Oso sobrevive.',
         popup: {
           title: '⚔️ ¡Combate Resuelto!',
           description: 'Oso Gris (F:2) vs Goblin (R:1): F > R → Goblin muere. Goblin (F:1) vs Oso (R:2): F < R → Oso sobrevive.',
@@ -803,7 +803,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase de Combate',
-        instruction: '¡Victoria! ✅ **Goblin** muere (R:1 < F:2). **Oso Gris** sobrevive (R:2 > F:1).\n\nEl **Lobo de Plata** también puede atacar ahora. Sin bloqueadores, el daño va directo.',
+        instruction: 'Goblin muere. Ataca con el **Lobo de Plata** para más daño directo.',
         tip: 'Sin bloqueadores, aprovecha para reducir la vida del oponente.',
         state: {
           playerLife: 20, opponentLife: 18,
@@ -831,7 +831,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Lección Completada',
-        instruction: '¡Lección completa! Ahora entiendes el combate:\n\n⚔️ **Fuerza**: Daño que hace\n🛡️ **Resistencia**: Daño que aguanta\n📐 Si **F ≥ R** → ganas. Si **F < R** → pierdes.',
+        instruction: 'Lección completa: F ≥ R gana, F < R pierde.',
         state: {
           playerLife: 20, opponentLife: 18,
           playerHand: [
@@ -871,7 +871,7 @@ export const TUTORIAL_LESSONS = [
     scenes: [
       {
         phase: 'Turno del Oponente',
-        instruction: 'Bienvenido a **Reflejos Azules**. Hoy aprenderás a usar **instantáneos** en el turno del oponente.\n\nTienes 3 Islas (maná azul) y un **Cancelar** ({1}{U}{U}) en mano. Los instantáneos se juegan a velocidad instantánea.',
+        instruction: 'Aprende a lanzar **instantáneos** en el turno del oponente con **Cancelar**.',
         tip: 'Los instantáneos pueden jugarse en cualquier momento, incluso en el turno rival. ¡Esa es su fuerza!',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -893,7 +893,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Turno del Oponente',
-        instruction: 'El oponente juega una tercera **Montaña** — tiene 3 maná rojo. Se prepara para lanzar algo grande...',
+        instruction: 'El oponente acumula maná rojo para un hechizo grande.',
         state: {
           playerLife: 20, opponentLife: 20,
           playerHand: [
@@ -915,7 +915,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Turno del Oponente',
-        instruction: '¡El oponente invoca **Garra Ígnea (5/5)**! Un dragón enorme que amenaza con arrasarte.\n\nResponde con **Cancelar** ({1}{U}{U}) mientras el hechizo está en la pila.',
+        instruction: 'Responde al **Garra Ígnea** con **Cancelar** mientras está en la pila.',
         tip: 'El contrahechizo va a la pila encima del hechizo rival. ¡Resuelve primero! Anula el dragón.',
         state: {
           playerLife: 20, opponentLife: 20,
@@ -939,7 +939,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Turno del Oponente',
-        instruction: '¡**Contrarrestado!** 💥 El Garra Ígnea es anulado y va directo al cementerio.\n\nGastaste 2 Islas para {U}{U} + 1 Isla para {1}. El dragón nunca llegó al campo de batalla.',
+        instruction: '**Cancelar** contrarresta al **Garra Ígnea**, que va al cementerio.',
         popup: {
           title: '💥 ¡Contrarrestado!',
           description: 'Cancelar anula el Garra Ígnea. El hechizo nunca resuelve y el dragón va directo al cementerio.',
@@ -971,7 +971,7 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Turno del Oponente',
-        instruction: 'Lección completa.\n\nAprendiste:\n🔵 **Instantáneos**: Hechizos a velocidad instantánea\n🔵 **Contrarrestar**: Anular un hechizo enemigo\n🔵 **Responder en turno rival**: Usar maná azul para defender',
+        instruction: 'Lección completa: instantáneos, contrarrestar y responder en turno rival.',
         state: {
           playerLife: 20, opponentLife: 20,
           playerHand: [],

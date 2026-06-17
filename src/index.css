@@ -103,12 +103,40 @@
     opacity: 0;
     transform: translate(-50%, 0) scale(0.55) rotate(-8deg);
   }
-  15% {
+  12% {
     opacity: 1;
   }
+  42% {
+    transform: translate(-50%, calc(-38vh)) scale(1) rotate(4deg);
+  }
+  52% {
+    transform: translate(-50%, calc(-35vh)) scale(1.05) rotate(2deg);
+  }
   100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(0.85) rotate(0deg);
+  }
+}
+
+@keyframes windStreak {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scaleX(1);
+  }
+  15% {
     opacity: 0.7;
-    transform: translate(-50%, -350px) scale(1.05) rotate(0deg);
+  }
+  42% {
+    opacity: 0.9;
+    transform: translate(-50%, calc(-19vh)) scaleX(1.8);
+  }
+  52% {
+    opacity: 0.5;
+    transform: translate(-50%, calc(-17vh)) scaleX(1.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, 0) scaleX(0.6);
   }
 }
 
@@ -251,7 +279,11 @@
 }
 
 .animate-card-attack {
-  animation: cardAttackFly 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: cardAttackFly 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-wind-streak {
+  animation: windStreak 1.4s ease-in-out forwards;
 }
 
 .animate-hit-flash {
