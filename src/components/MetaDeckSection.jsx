@@ -111,7 +111,7 @@ export default function MetaDeckSection() {
   const [ref, inView] = useInView(0.05)
 
   return (
-    <section id="meta-decks" className="relative px-4 py-24 sm:px-6 sm:py-32" ref={ref}>
+    <section id="meta-decks" className="relative px-4 py-24 sm:px-6 sm:py-32 overflow-x-hidden" ref={ref}>
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_#a855f7_0%,_transparent_50%)] opacity-[0.03]" />
       </div>

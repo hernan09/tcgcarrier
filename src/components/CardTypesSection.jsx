@@ -37,7 +37,7 @@ export default function CardTypesSection() {
   }, [activeType, loadedImages])
 
   return (
-    <section id="card-types" className="relative px-4 py-24 sm:px-6 sm:py-32" ref={ref}>
+    <section id="card-types" className="relative px-4 py-24 sm:px-6 sm:py-32 overflow-x-hidden" ref={ref}>
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_#6366f1_0%,_transparent_50%)] opacity-[0.03]" />
       </div>

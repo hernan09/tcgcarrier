@@ -262,7 +262,7 @@ function ColorCarousel() {
   }, [activeIndex, loadedImages])
 
   return (
-    <section id="colors" className="relative px-4 py-24 sm:px-6 sm:py-32" ref={ref}>
+    <section id="colors" className="relative px-4 py-24 sm:px-6 sm:py-32 overflow-x-hidden" ref={ref}>
       <div className="mx-auto max-w-6xl">
         <div className={`mb-16 text-center transition-all duration-700 ${inView ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
           <span className="mb-3 inline-block rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300">
@@ -341,7 +341,7 @@ function HowToPlay() {
   const [ref, inView] = useInView(0.05)
 
   return (
-    <section id="how-to-play" className="relative px-4 py-24 sm:px-6 sm:py-32" ref={ref}>
+    <section id="how-to-play" className="relative px-4 py-24 sm:px-6 sm:py-32 overflow-x-hidden" ref={ref}>
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_#6366f1_0%,_transparent_50%)] opacity-[0.03]" />
 
       <div className={`mx-auto max-w-4xl transition-all duration-700 ${inView ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
@@ -448,7 +448,7 @@ function CTASection({ onStartGame }) {
   const [ref, inView] = useInView(0.3)
 
   return (
-    <section className="relative px-4 py-24 sm:px-6 sm:py-32" ref={ref}>
+    <section className="relative px-4 py-24 sm:px-6 sm:py-32 overflow-x-hidden" ref={ref}>
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#a855f7_0%,_transparent_60%)] opacity-10" />
       </div>
