@@ -1096,7 +1096,7 @@ function InteractionPopup({ popup, cards, onDismiss }) {
   )
 }
 
-function GameBoard({ lesson, sceneIdx, displayState, hiddenCardIds, onCardClick, phaseBanner, lifeRecoil }) {
+function GameBoard({ lesson, sceneIdx, displayState, hiddenCardIds, onCardClick, lifeRecoil }) {
   const scene = lesson.scenes[sceneIdx]
   const state = displayState ?? scene.state
   const isLessonComplete = scene.phase === 'Lección Completada'
@@ -1178,11 +1178,6 @@ function GameBoard({ lesson, sceneIdx, displayState, hiddenCardIds, onCardClick,
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <PhaseChangeBanner
-        phase={phaseBanner.phase}
-        visible={phaseBanner.visible}
-        instruction={phaseBanner.instruction}
-      />
       <div className="battlefield-magic flex-1 px-2 py-2 sm:px-4 sm:py-3 flex flex-col overflow-y-auto">
         {/* Top bar */}
         <motion.div
@@ -1423,11 +1418,11 @@ function GameBoard({ lesson, sceneIdx, displayState, hiddenCardIds, onCardClick,
           </div>
         </motion.div>
       </div>
-      {/* Phase ladder */}
+      {/* Phase ladder - floating left sidebar on all screens */}
       <motion.div
-        className="hidden sm:flex items-center pr-3"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        className="fixed left-1.5 sm:left-3 top-1/2 -translate-y-1/2 z-30 flex items-center py-2 px-1.5 sm:py-2.5 sm:px-2 rounded-xl border border-zinc-800/40 bg-zinc-950/60 backdrop-blur-md"
+        initial={{ opacity: 0, x: -16 }}
+        animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
         <PhaseLadder currentPhase={scene.phase} />
@@ -1445,7 +1440,7 @@ const PHASE_STEPS = [
 ]
 
 function PhaseLadder({ currentPhase }) {
-  const currentIdx = PHASE_STEPS.findIndex(p => currentPhase?.includes(p.key.split(' ')[0]))
+  const currentIdx = PHASE_STEPS.findIndex(p => currentPhase?.startsWith(p.key))
 
   return (
     <div className="flex flex-col items-end gap-1">
@@ -1475,40 +1470,11 @@ function PhaseLadder({ currentPhase }) {
   )
 }
 
-function PhaseChangeBanner({ phase, visible, instruction }) {
-  const step = PHASE_STEPS.find(p => phase?.includes(p.key.split(' ')[0]))
-  if (!step) return null
-
-  return (
-    <motion.div
-      className="pointer-events-none fixed top-20 left-1/2 z-50 -translate-x-1/2"
-      initial={{ opacity: 0, y: -16 }}
-      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: -16 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
-    >
-      <div className={`rounded-xl border-[3px] border-zinc-900 bg-zinc-950/90 backdrop-blur-md px-5 py-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)]`}>
-        <div className="flex items-center gap-2 mb-1">
-          <div className={`h-2.5 w-2.5 rounded-full ${step.color} shadow-lg`} />
-          <span className={`text-xs font-black uppercase tracking-widest ${step.color.replace('bg-', 'text-')}`}>
-            {phase}
-          </span>
-        </div>
-        {instruction ? (
-          <p className="max-w-md text-[11px] leading-relaxed text-zinc-400">
-            <LessonRichText text={instruction} />
-          </p>
-        ) : null}
-      </div>
-    </motion.div>
-  )
-}
-
 export default function GameDemo({ onBack }) {
   const [lesson, setLesson] = useState(null)
   const [sceneIdx, setSceneIdx] = useState(0)
   const [advancing, setAdvancing] = useState(false)
   const [transitioning, setTransitioning] = useState(false)
-  const [phaseBanner, setPhaseBanner] = useState({ visible: false, phase: '', instruction: '' })
   const [popupData, setPopupData] = useState(null)
   const [targetAnim, setTargetAnim] = useState(null)
   const [targetAnimPhase, setTargetAnimPhase] = useState(null)
@@ -1573,13 +1539,8 @@ export default function GameDemo({ onBack }) {
 
   useEffect(() => {
     if (!scene) return
-    if (prevPhaseRef.current !== scene.phase) {
-      setPhaseBanner({ visible: true, phase: scene.phase, instruction: scene.instruction })
-      const t = setTimeout(() => setPhaseBanner(prev => ({ ...prev, visible: false })), 3500)
-      prevPhaseRef.current = scene.phase
-      return () => clearTimeout(t)
-    }
-  }, [scene?.phase, scene?.instruction])
+    prevPhaseRef.current = scene.phase
+  }, [scene?.phase])
 
   useEffect(() => {
     if (!lesson) return
@@ -1756,7 +1717,6 @@ export default function GameDemo({ onBack }) {
         displayState={boardState}
         hiddenCardIds={hiddenCardIds}
         onCardClick={handleCardClick}
-        phaseBanner={phaseBanner}
         lifeRecoil={hitVisible && attackAnim?.type === 'direct'}
       />
 

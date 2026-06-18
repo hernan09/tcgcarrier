@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { COLORS, HOW_TO_PLAY_STEPS } from '../data/mtgColors'
 import CardTypesSection from './CardTypesSection'
-import MetaDeckSection from './MetaDeckSection'
 import { ManaSymbol } from './ManaSymbol'
 
 function useInView(threshold = 0.2) {
@@ -152,7 +151,7 @@ function HeroSection({ onExplore }) {
         >
           <button
             onClick={onExplore}
-            className="group inline-flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-600/90 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-indigo-600/25 backdrop-blur-sm transition-all hover:bg-indigo-500 hover:shadow-indigo-500/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/50"
+            className="group inline-flex items-center gap-2 rounded-xl border border-purple-500/40 bg-gradient-to-br from-purple-500 to-purple-800 px-8 py-2.5 text-base font-semibold text-white shadow-lg shadow-purple-600/40 backdrop-blur-sm transition-all hover:from-purple-400 hover:to-purple-700 hover:shadow-purple-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/50"
           >
             Explorar los Colores
             <svg className="h-5 w-5 transition-transform group-hover:translate-y-1" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
@@ -259,15 +258,15 @@ function ColorCard({ color, index, isActive, onClick, cardImageUrls }) {
 }
 
 function ColorCarousel() {
-  const [activeIndex, setActiveIndex] = useState(0)
+  const [activeIndex, setActiveIndex] = useState(-1)
   const [loadedImages, setLoadedImages] = useState({})
   const [isPaused, setIsPaused] = useState(false)
   const intervalRef = useRef(null)
   const loadingRef = useRef({})
   const [ref, inView] = useInView(0.1)
 
-  const next = useCallback(() => setActiveIndex(i => (i + 1) % COLORS.length), [])
-  const prev = useCallback(() => setActiveIndex(i => (i - 1 + COLORS.length) % COLORS.length), [])
+  const next = useCallback(() => setActiveIndex(i => (i < 0 ? 0 : (i + 1) % COLORS.length)), [])
+  const prev = useCallback(() => setActiveIndex(i => (i < 0 ? 0 : (i - 1 + COLORS.length) % COLORS.length)), [])
 
   useEffect(() => {
     if (!inView || isPaused) return
@@ -276,7 +275,9 @@ function ColorCarousel() {
   }, [inView, isPaused, next])
 
   useEffect(() => {
+    if (activeIndex < 0) return
     const active = COLORS[activeIndex]
+    if (!active) return
     active.cards.forEach(name => {
       if (loadedImages[name] || loadingRef.current[name]) return
       loadingRef.current[name] = true
@@ -516,7 +517,6 @@ export default function Home({ onStartGame }) {
       <ColorCarousel />
       <HowToPlay />
       <CardTypesSection />
-      <MetaDeckSection />
       <CTASection onStartGame={onStartGame} />
     </div>
   )

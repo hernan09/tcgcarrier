@@ -1069,19 +1069,17 @@ export const TUTORIAL_LESSONS = [
         interaction: { type: 'click_hand', highlightIds: ['mur1'] },
       },
       {
-        phase: 'Fase Principal',
-        instruction: '¡**Asesinato** destruye al **Gremlin de Sulfuro** sin posibilidad de salvarlo!',
+        phase: 'Fase de Combate',
+        instruction: '¡**Asesinato** destruye al **Gremlin de Sulfuro** al instante!',
         popup: {
           title: '💀 ¡Destruido!',
-          description: 'Asesinato destruye al Gremlin de Sulfuro al instante. El negro elimina criaturas con una eficacia que ningún otro color iguala.',
+          description: 'Asesinato destruye al Gremlin de Sulfuro sin posibilidad de salvarlo. El negro elimina criaturas como ningún otro color.',
           cardIds: ['mur1', 'og1b'],
-          targeting: { sourceId: 'mur1', targetId: 'og1b' },
         },
-        tip: 'Los conjuros de eliminación como Asesinato son esenciales para controlar el tablero. Sin criaturas, el oponente no puede atacar.',
+        tip: 'Sin criaturas, el oponente no puede atacarte. Los conjuros de eliminación te dan control total del tablero.',
         state: {
           playerLife: 20, opponentLife: 20,
           playerHand: [
-            { id: 'p1', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'p2', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'p3', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'p4', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
@@ -1090,6 +1088,7 @@ export const TUTORIAL_LESSONS = [
             { id: 'p1b', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
             { id: 'p2b', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
             { id: 'p3b', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p4b', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
           ],
           opponentBoard: [
             { id: 'om1b', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
@@ -1106,12 +1105,39 @@ export const TUTORIAL_LESSONS = [
         interaction: { type: 'auto', delay: 3000 },
       },
       {
+        phase: 'Turno del Oponente',
+        instruction: 'El oponente no tiene criaturas que jugar. Pasa el turno sin amenazas.',
+        tip: 'Al eliminar sus criaturas, el oponente pierde su capacidad de ataque. ¡Controla el tablero!',
+        state: {
+          playerLife: 20, opponentLife: 20,
+          playerHand: [
+            { id: 'p2', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'p3', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'p4', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+          ],
+          playerBoard: [
+            { id: 'p1b', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'p2b', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p3b', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p4b', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+          ],
+          opponentBoard: [
+            { id: 'om1b', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'om2b', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+          ],
+          opponentHandCount: 3,
+          opponentGraveyard: [
+            { id: 'og1b', name: 'Gremlin de Sulfuro', typeLine: 'Criatura — Gremlin', manaCost: '{1}{R}', cmc: 2, color: 'R', power: 2, toughness: 2, tapped: false },
+          ],
+        },
+        interaction: { type: 'auto', delay: 2500 },
+      },
+      {
         phase: 'Lección Completada',
         instruction: 'Lección completa: eliminación con conjuros negros.',
         state: {
           playerLife: 20, opponentLife: 20,
           playerHand: [
-            { id: 'p1', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'p2', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'p3', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'p4', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
@@ -1120,6 +1146,7 @@ export const TUTORIAL_LESSONS = [
             { id: 'p1b', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'p2b', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'p3b', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'p4b', name: 'Pantano', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
           ],
           opponentBoard: [
             { id: 'om1b', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },

@@ -18,8 +18,16 @@ export default function App() {
       <header className="sticky top-0 z-40 border-b border-zinc-800/60 bg-zinc-950/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2.5 shrink-0" aria-label="TCG Carrier inicio">
-            <svg className="h-7 w-7 text-indigo-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            <svg className="h-7 w-7" viewBox="0 0 48 48" aria-hidden="true">
+              <defs>
+                <linearGradient id="headerGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#a855f7"/>
+                  <stop offset="100%" stopColor="#6b21a8"/>
+                </linearGradient>
+              </defs>
+              <path fill="url(#headerGrad)" d="M24 2L46 16v18L24 46 2 34V16Z"/>
+              <path fill="#0a0a0a" d="M24 8L40 19v12L24 42 8 31V19Z"/>
+              <path fill="url(#headerGrad)" d="M14 16h5l5 8 5-8h5v18h-4.5V24L24 32l-5.5-8v10H14V16Z"/>
             </svg>
             <span className="text-lg font-bold tracking-tight text-zinc-100">
               MTG / ¡Aprende a Jugar!
