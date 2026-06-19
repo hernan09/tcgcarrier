@@ -4,10 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "node ssr.js",
+    "dev:old": "vite",
+    "build": "vite build && npx vite build --ssr src/entry-server.jsx --outDir dist/server",
+    "build:client": "vite build",
+    "build:ssr": "npx vite build --ssr src/entry-server.jsx --outDir dist/server",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "NODE_ENV=production node ssr.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.1",

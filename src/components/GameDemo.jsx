@@ -3,9 +3,48 @@ import { motion } from 'framer-motion'
 import { TUTORIAL_LESSONS } from '../data/tutorialLessons'
 import { ManaSymbol, ManaSymbolGroup } from './ManaSymbol'
 
-const CARD_IMAGE_CACHE = new Map()
+const CARD_IMAGE_CACHE = new Map([
+  ['Bosque', 'https://cards.scryfall.io/normal/front/5/f/5f533364-0f91-4e49-aaeb-83c4c1f6d316.jpg?1777658419'],
+  ['Montaña', 'https://cards.scryfall.io/normal/front/5/1/51acfb01-4b0b-48fc-9704-a9b4a1e43a23.jpg?1777658413'],
+  ['Llanura', 'https://cards.scryfall.io/normal/front/2/4/24dc369c-020a-4115-a4bb-d60a44de64e3.jpg?1777658393'],
+  ['Isla', 'https://cards.scryfall.io/normal/front/7/3/739aaaac-c424-4ea7-a084-62a6fc0438b0.jpg?1777658399'],
+  ['Pantano', 'https://cards.scryfall.io/normal/front/c/5/c5f590a3-9993-4ac4-a93c-1beb44eda17b.jpg?1777658405'],
+  ['Llanowar Elves', 'https://cards.scryfall.io/normal/front/6/a/6a0b230b-d391-4998-a3f7-7b158a0ec2cd.jpg?1731652605'],
+  ['Oso Gris', 'https://cards.scryfall.io/normal/front/4/0/409f9b88-f03e-40b6-9883-68c14c37c0de.jpg?1562546736'],
+  ['Lobo de Plata', 'https://cards.scryfall.io/normal/front/9/d/9d33e866-cfd8-44e6-8070-df8df1ce965d.jpg?1562557734'],
+  ['Crecimiento Gigante', 'https://cards.scryfall.io/normal/front/f/d/fd1f95bf-48ea-455a-8a6c-0249b11c8900.jpg?1780919986'],
+  ['Goblin Rezagado', 'https://cards.scryfall.io/normal/front/3/4/3480927c-10da-4817-9954-10aea2bc7100.jpg?1605206526'],
+  ['Slickshot Show-Off', 'https://cards.scryfall.io/normal/front/7/0/7054012b-4f9d-44a0-aaf9-7fd3bddc7b2d.jpg?1712355850'],
+  ['Lightning Strike', 'https://cards.scryfall.io/normal/front/8/8/88b13bc0-da54-4c3b-917c-7c8345a329f5.jpg?1780919889'],
+  ['Cancelar', 'https://cards.scryfall.io/normal/front/4/7/475bff39-220a-4490-9c2e-d311e306a6db.jpg?1730490517'],
+  ['Garra Ígnea', 'https://cards.scryfall.io/normal/front/7/0/702c4781-670b-49ae-b511-90ed119841b0.jpg?1775600379'],
+  ['Rino de Estampida', 'https://cards.scryfall.io/normal/front/c/d/cd02ae80-4af6-4da1-ba3b-b56068c49785.jpg?1562200915'],
+  ['Asesinato', 'https://cards.scryfall.io/normal/front/2/c/2c249609-9cf7-46f1-b94c-9329add966bb.jpg?1726286259'],
+  ['Gremlin de Sulfuro', 'https://cards.scryfall.io/normal/front/0/8/083ec3e7-950c-4e9d-aba5-02ed13d723f0.jpg?1562631492'],
+  ['Serra Angel', 'https://cards.scryfall.io/normal/front/b/8/b8c5e74c-96e7-4a1f-93b7-14d776fe4b2d.jpg?1775599758'],
+])
 const IN_FLIGHT_REQUESTS = new Map()
 const CARD_BACK_URL = 'https://cards.scryfall.io/back.png'
+const RATE_LIMIT_MS = 600
+let lastRequestTime = 0
+function delay(ms) {
+  return new Promise(r => setTimeout(r, ms))
+}
+async function nextRequestSlot() {
+  const now = Date.now()
+  const wait = Math.max(0, RATE_LIMIT_MS - (now - lastRequestTime))
+  lastRequestTime = now + wait
+  return delay(wait)
+}
+function extractImageUrl(data) {
+  if (!data) return null
+  let urls = data.image_uris
+  if (!urls && data.card_faces?.length > 0) {
+    urls = data.card_faces[0].image_uris
+  }
+  if (!urls) return null
+  return urls.normal || urls.large || urls.small || urls.border_crop || urls.png || null
+}
 
 const LAND_MANA_COLORS = {
   Bosque: 'G',
@@ -28,6 +67,8 @@ const PREVIEW_CARD_COLORS = {
   'Goblin Rezagado': 'R',
   'Gremlin de Sulfuro': 'R',
   'Garra Ígnea': 'R',
+  'Rino de Estampida': 'G',
+  'Serra Angel': 'W',
 }
 
 function getPreviewCardColor(cardName, fallbackColors) {
@@ -47,6 +88,7 @@ const API_CARD_NAMES = {
   'Lightning Strike': 'Lightning Strike',
   'Cancelar': 'Cancel',
   'Garra Ígnea': 'Shivan Dragon',
+  'Rino de Estampida': 'Stampeding Rhino',
   'Pantano': 'Swamp',
   'Asesinato': 'Murder',
   'Gremlin de Sulfuro': 'Goblin Piker',
@@ -56,41 +98,59 @@ function getApiCardName(cardName) {
   return API_CARD_NAMES[cardName] || cardName
 }
 
+async function fetchFromScryfall(url) {
+  await nextRequestSlot()
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 8000)
+  try {
+    const res = await fetch(url, { signal: controller.signal })
+    clearTimeout(timeout)
+    if (res.status === 429) {
+      await delay(1000)
+      return fetchFromScryfall(url)
+    }
+    if (res.ok) return await res.json()
+    return null
+  } catch {
+    clearTimeout(timeout)
+    return null
+  }
+}
+
 async function fetchAndPreload(cardName) {
   const apiName = getApiCardName(cardName)
   const encoded = encodeURIComponent(apiName)
 
-  let data = null
-  try {
-    const res = await fetch(`https://api.scryfall.com/cards/named?exact=${encoded}&format=json`)
-    if (res.ok) data = await res.json()
-  } catch {}
+  let data = await fetchFromScryfall(
+    `https://api.scryfall.com/cards/named?exact=${encoded}&format=json`
+  )
 
   if (!data) {
-    try {
-      const res = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encoded}&format=json`)
-      if (res.ok) data = await res.json()
-    } catch {}
+    data = await fetchFromScryfall(
+      `https://api.scryfall.com/cards/named?fuzzy=${encoded}&format=json`
+    )
   }
 
-  const imageUrl = data?.image_uris?.normal || data?.image_uris?.large || null
-  if (!imageUrl) {
-    CARD_IMAGE_CACHE.set(cardName, null)
-    return null
+  let imageUrl = extractImageUrl(data)
+
+  if (!imageUrl && data?.oracle_id) {
+    const prints = await fetchFromScryfall(
+      `https://api.scryfall.com/cards/search?q=oracleid:${data.oracle_id}&unique=prints&order=released`
+    )
+    if (prints?.data) {
+      for (const card of prints.data) {
+        imageUrl = extractImageUrl(card)
+        if (imageUrl) break
+      }
+    }
   }
 
-  return new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => {
-      CARD_IMAGE_CACHE.set(cardName, imageUrl)
-      resolve(imageUrl)
-    }
-    img.onerror = () => {
-      CARD_IMAGE_CACHE.set(cardName, null)
-      resolve(null)
-    }
-    img.src = imageUrl
-  })
+  if (imageUrl) {
+    CARD_IMAGE_CACHE.set(cardName, imageUrl)
+    return imageUrl
+  }
+  CARD_IMAGE_CACHE.set(cardName, null)
+  return null
 }
 
 function ensureCardImage(cardName) {
@@ -202,6 +262,15 @@ const colorConfig = {
     name: 'text-amber-50',
     accent: 'bg-amber-500/20',
   },
+}
+
+const CARD_COLOR_HEX = {
+  W: '#fbbf24',
+  U: '#38bdf8',
+  B: '#a78bfa',
+  R: '#f87171',
+  G: '#34d399',
+  land: '#78716c',
 }
 
 function getTooltipMessage(card, interactionType) {
@@ -336,6 +405,140 @@ function ZonePile({ type, count, side = 'player', entrance = true, imageUrl }) {
       </div>
       <span className="text-[8px] font-semibold text-zinc-600 uppercase tracking-widest">{label}</span>
     </motion.div>
+  )
+}
+
+function DrawRevealCard({ imageUrl, color, phase }) {
+  if (!imageUrl) return null
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
+      <div
+        className="relative w-[130px] h-[180px]"
+        style={{
+          animation: phase === 'flying'
+            ? 'cardFlyFromLibrary 1.5s ease-out forwards'
+            : 'none',
+        }}
+      >
+        <div
+          className="relative w-full h-full"
+          style={{ perspective: '800px' }}
+        >
+          <div
+            className="absolute inset-0"
+            style={{
+              transformStyle: 'preserve-3d',
+              transition: 'transform 0.6s ease-in-out',
+              transform: phase === 'flipping' ? 'rotateY(180deg)' : 'rotateY(0deg)',
+            }}
+          >
+            <div
+              className="absolute inset-0 rounded-lg border-2 overflow-hidden bg-zinc-900"
+              style={{
+                backfaceVisibility: 'hidden',
+                borderColor: color || '#34d399',
+              }}
+            >
+              <img src={CARD_BACK_URL} alt="Dorso" className="h-full w-full object-cover" />
+            </div>
+            <div
+              className="absolute inset-0 rounded-lg border-2 overflow-hidden bg-zinc-900"
+              style={{
+                backfaceVisibility: 'hidden',
+                transform: 'rotateY(180deg)',
+                borderColor: color || '#34d399',
+              }}
+            >
+              <img src={imageUrl} alt="Carta" className="h-full w-full object-cover" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function AttackFly({ attack, onComplete }) {
+  const { url: imageUrl } = useCardImage(attack?.card?.name)
+  const [dx, setDx] = useState(0)
+  const [dy, setDy] = useState(0)
+  const [phase, setPhase] = useState('idle')
+  const [lifePos, setLifePos] = useState({ x: 0, y: 0 })
+
+  useEffect(() => {
+    if (!attack?.startRect || !imageUrl) return
+
+    const lifeEl = document.querySelector('span.text-red-400.tabular-nums')
+    const lifeRect = lifeEl?.getBoundingClientRect()
+    const targetX = lifeRect ? lifeRect.left + lifeRect.width / 2 : window.innerWidth / 2
+    const targetY = lifeRect ? lifeRect.top + lifeRect.height / 2 : 30
+
+    setLifePos({ x: targetX, y: targetY })
+
+    const cx = attack.startRect.left + attack.startRect.width / 2
+    const cy = attack.startRect.top + attack.startRect.height / 2
+
+    setDx(targetX - cx)
+    setDy(targetY - cy)
+
+    const cardEl = document.querySelector(`[data-card-id="${attack.card.id}"]`)
+    if (cardEl) cardEl.style.opacity = '0'
+
+    const f = requestAnimationFrame(() => setPhase('flying'))
+
+    const t2 = setTimeout(() => setPhase('return'), 600)
+    const t3 = setTimeout(() => {
+      setPhase('done')
+      if (cardEl) cardEl.style.opacity = '1'
+      onComplete()
+    }, 1000)
+
+    return () => {
+      cancelAnimationFrame(f)
+      clearTimeout(t2)
+      clearTimeout(t3)
+      if (cardEl) cardEl.style.opacity = '1'
+    }
+  }, [imageUrl])
+
+  if (!attack?.startRect || !imageUrl || phase === 'done') return null
+
+  const color = CARD_COLOR_HEX[attack.card.color === 'land' ? 'land' : attack.card.color] || CARD_COLOR_HEX.G
+
+  const transform = phase === 'flying'
+    ? `translate(${dx}px, ${dy}px) rotate(-6deg) scale(1.2)`
+    : 'translate(0, 0) rotate(0deg) scale(1)'
+
+  return (
+    <div className="fixed inset-0 z-[90] pointer-events-none">
+      <img
+        src={imageUrl}
+        className="absolute rounded-lg border-2 shadow-2xl"
+        style={{
+          width: attack.startRect.width,
+          height: attack.startRect.height,
+          left: attack.startRect.left,
+          top: attack.startRect.top,
+          borderColor: color,
+          transition: phase === 'flying'
+            ? 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)'
+            : 'transform 0.4s ease-out',
+          transform,
+        }}
+      />
+      {phase === 'flying' && (
+        <div
+          className="absolute z-[100] text-2xl sm:text-3xl font-black text-red-400 drop-shadow-[0_0_10px_rgba(248,113,113,0.9)] animate-damage-pop"
+          style={{
+            left: lifePos.x - 14,
+            top: lifePos.y - 16,
+          }}
+        >
+          -{attack.damage}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -675,93 +878,6 @@ function LessonMenu({ onSelect, onBack }) {
   )
 }
 
-function DrawRevealCard({ cardName }) {
-  const cc = colorConfig[cardName === 'Bosque' || cardName === 'Llanura' || cardName === 'Montaña' || cardName === 'Isla' ? 'land' : cardName.includes('Show-Off') ? 'R' : 'G'] || colorConfig.B
-  const { url: imageUrl, status: imageStatus } = useCardImage(cardName)
-
-  return (
-    <div className="relative h-full w-full overflow-hidden">
-      <div className={`absolute inset-0 bg-gradient-to-br ${cc.from} ${cc.to} transition-opacity duration-300 ${imageStatus === 'loaded' ? 'opacity-0' : 'opacity-100'}`} />
-      {imageUrl && (
-        <div
-          className={`absolute inset-0 bg-cover bg-center transition-all duration-500 ${imageStatus === 'loaded' ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-          style={{ backgroundImage: `url(${imageUrl})` }}
-        />
-      )}
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-      <div className="relative z-10 flex h-full flex-col items-center justify-between p-1.5">
-        <div className="flex items-center gap-1 mt-1">
-          <span className="text-[8px] font-bold bg-black/40 backdrop-blur-sm rounded px-1.5 py-0.5 text-yellow-400 leading-tight">
-            +1
-          </span>
-        </div>
-        <p className="text-[9px] font-bold text-center text-white drop-shadow-lg leading-tight px-1">
-          {cardName}
-        </p>
-      </div>
-      <div className="absolute top-0 right-0 -mt-1 -mr-1 flex h-5 w-5 items-center justify-center rounded-full bg-yellow-400 text-[9px] font-bold text-zinc-900 shadow-lg animate-pulse">
-        ✦
-      </div>
-    </div>
-  )
-}
-
-function AttackFly({ card, damage, startRect }) {
-  const cc = colorConfig[card.color === 'land' ? 'land' : card.color] || colorConfig.B
-  const { url: imageUrl, status: imageStatus } = useCardImage(card.name)
-
-  if (!startRect) return null
-
-  const vw = window.innerWidth
-  const vh = window.innerHeight
-  const cardCx = startRect.left + startRect.width / 2
-  const cardCy = startRect.top + startRect.height / 2
-  const lifeX = vw / 2
-  const lifeY = vh * 0.08
-  const dx = lifeX - cardCx
-  const dy = lifeY - cardCy
-  const animName = 'anim-' + (card.id || 'fly')
-
-  return (
-    <div className="fixed inset-0 z-[997] pointer-events-none">
-      <style>{`@keyframes ${animName}{0%{transform:translate(0,0) scale(1) rotate(0deg)}30%{transform:translate(${dx}px,${dy}px) scale(1.05) rotate(5deg)}42%{transform:translate(${dx}px,${dy}px) scale(1.1) rotate(2deg)}85%{transform:translate(${dx*0.06}px,${dy*0.06}px) scale(0.95) rotate(-2deg)}100%{transform:translate(0,0) scale(1) rotate(0deg)}}`}</style>
-      {/* Animated group: card + streaks via translate */}
-      <div
-        className="absolute"
-        style={{ top: startRect.top, left: startRect.left, width: startRect.width, height: startRect.height }}
-      >
-        <div
-          className="relative w-full h-full"
-          style={{ animation: `${animName} 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards` }}
-        >
-          {/* Wind/trail streaks */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -ml-16 w-[110px] h-[2px] bg-gradient-to-r from-transparent via-red-400/60 to-transparent rounded-full blur-[2px] animate-wind-streak" />
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -ml-8 w-[140px] h-[3px] bg-gradient-to-r from-transparent via-orange-400/50 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.1s' }} />
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ml-8 w-[120px] h-[2px] bg-gradient-to-r from-transparent via-red-400/50 to-transparent rounded-full blur-[2px] animate-wind-streak" style={{ animationDelay: '0.15s' }} />
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ml-16 w-[90px] h-[2px] bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.2s' }} />
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -ml-24 w-[70px] h-[1.5px] bg-gradient-to-r from-transparent via-red-400/40 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.05s' }} />
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ml-24 w-[60px] h-[1.5px] bg-gradient-to-r from-transparent via-orange-400/30 to-transparent rounded-full blur-[1px] animate-wind-streak" style={{ animationDelay: '0.25s' }} />
-
-          {/* Card */}
-          <div className="absolute inset-0 rounded-xl border-[3px] overflow-hidden shadow-2xl shadow-red-500/30 border-red-500/50">
-            <div className={`absolute inset-0 bg-gradient-to-br ${cc.from} ${cc.to} transition-opacity duration-300 ${imageStatus === 'loaded' ? 'opacity-0' : 'opacity-100'}`} />
-            {imageUrl && (
-              <div
-                className={`absolute inset-0 bg-cover bg-center transition-all duration-500 ${imageStatus === 'loaded' ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-                style={{ backgroundImage: `url(${imageUrl})` }}
-              />
-            )}
-            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-            <div className="absolute bottom-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-lg">
-              {damage}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function getAllCards(state) {
   return [
     ...(state.playerHand || []),
@@ -1022,12 +1138,16 @@ function PopupCard({ card }) {
   return (
     <div className={`relative w-28 h-40 rounded-xl border-2 overflow-hidden animate-pulse shadow-lg shadow-indigo-500/30 ${cc.border}`}>
       <div className={`absolute inset-0 bg-gradient-to-br ${cc.from} ${cc.to} transition-opacity duration-300 ${imageStatus === 'loaded' ? 'opacity-0' : 'opacity-100'}`} />
-      {imageUrl && (
-        <div
-          className={`absolute inset-0 bg-cover bg-center transition-all duration-500 ${imageStatus === 'loaded' ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-          style={{ backgroundImage: `url(${imageUrl})` }}
-        />
-      )}
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt={card.name}
+              className={`absolute inset-0 rounded-lg object-cover w-full h-full transition-all duration-700 ease-out ${imageStatus === 'loaded' ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+              onError={(e) => {
+                e.target.style.display = 'none'
+              }}
+            />
+          )}
       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
       <div className="relative z-10 flex h-full flex-col items-center justify-between p-2">
         {card.power != null && (
@@ -1107,9 +1227,7 @@ function GameBoard({ lesson, sceneIdx, displayState, hiddenCardIds, onCardClick,
   const isClickBoard = interaction.type === 'click_board'
 
   const prevCardIdsRef = useRef(new Set())
-  const libraryRef = useRef(null)
-
-  const [drawAnim, setDrawAnim] = useState({ phase: 'idle', card: null })
+  const [drawAnim, setDrawAnim] = useState({ phase: 'idle', card: null, imageUrl: '' })
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640)
   const [selectedCardId, setSelectedCardId] = useState(null)
 
@@ -1128,29 +1246,38 @@ function GameBoard({ lesson, sceneIdx, displayState, hiddenCardIds, onCardClick,
     prevCardIdsRef.current = ids
   }, [sceneIdx])
 
+  const drawAnimRef = useRef({ cancelled: false })
   useEffect(() => {
-    if (scene.phase.includes('Inicio') && sceneIdx > 0) {
-      const prevScene = lesson.scenes[sceneIdx - 1]
-      const prevIds = new Set(prevScene.state.playerHand.map(c => c.id))
-      const newCards = state.playerHand.filter(c => !prevIds.has(c.id))
+    if (!scene.phase.includes('Inicio') || sceneIdx <= 0) return
+    const prevScene = lesson.scenes[sceneIdx - 1]
+    const prevIds = new Set(prevScene.state.playerHand.map(c => c.id))
+    const newCards = state.playerHand.filter(c => !prevIds.has(c.id))
 
-      if (newCards.length > 0) {
-        const card = newCards[0]
-        setDrawAnim({ phase: 'flying', card })
+    if (newCards.length === 0) return
 
-        const t1 = setTimeout(() => {
-          setDrawAnim(prev => ({ ...prev, phase: 'flipping' }))
-        }, 1500)
+    const card = newCards[0]
+    const ref = drawAnimRef
+    ref.current.cancelled = false
+    const timeouts = []
 
-        const t2 = setTimeout(() => {
-          setDrawAnim({ phase: 'idle', card: null })
-        }, 2800)
+    ensureCardImage(card.name).then((url) => {
+      if (ref.current.cancelled) return
+      setDrawAnim({ phase: 'flying', card, imageUrl: url || '' })
 
-        return () => {
-          clearTimeout(t1)
-          clearTimeout(t2)
-        }
-      }
+      const t1 = setTimeout(() => {
+        if (!ref.current.cancelled) setDrawAnim(prev => ({ ...prev, phase: 'flipping' }))
+      }, 1500)
+      timeouts.push(t1)
+
+      const t2 = setTimeout(() => {
+        if (!ref.current.cancelled) setDrawAnim({ phase: 'idle', card: null, imageUrl: '' })
+      }, 2800)
+      timeouts.push(t2)
+    })
+
+    return () => {
+      ref.current.cancelled = true
+      timeouts.forEach(clearTimeout)
     }
   }, [sceneIdx])
 
@@ -1198,11 +1325,11 @@ function GameBoard({ lesson, sceneIdx, displayState, hiddenCardIds, onCardClick,
               Paso {sceneIdx + 1}/{lesson.scenes.length}
             </span>
           </div>
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5">
-            <svg className="h-4 w-4 text-red-400" fill="currentColor" viewBox="0 0 24 24">
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2">
+            <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
-            <span className={`text-sm font-bold text-red-400 tabular-nums ${lifeRecoil ? 'animate-life-recoil' : ''}`}>{state.opponentLife}</span>
+            <span className={`text-xl font-bold text-red-400 tabular-nums ${lifeRecoil ? 'animate-life-recoil' : ''}`}>{state.opponentLife}</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden text-xs text-zinc-500 sm:inline">P. {sceneIdx + 1}/{lesson.scenes.length}</span>
@@ -1364,30 +1491,12 @@ function GameBoard({ lesson, sceneIdx, displayState, hiddenCardIds, onCardClick,
         </div>
 
         {/* Draw animation overlay */}
-        {drawAnim.phase !== 'idle' && drawAnim.card && (
-          <div className="fixed inset-0 z-[999] pointer-events-none flex items-center justify-center">
-            <div className={`
-              w-[100px] h-[140px] max-sm:w-[72px] max-sm:h-[102px] rounded-xl border-[3px] overflow-hidden shadow-2xl
-              ${drawAnim.phase === 'flying'
-                ? 'animate-card-fly border-amber-500/40 shadow-amber-500/30'
-                : 'animate-card-flip border-yellow-400/60 shadow-yellow-400/40'
-              }
-            `}>
-              {drawAnim.phase === 'flying' ? (
-                <div className="relative flex h-full w-full items-center justify-center bg-gradient-to-b from-zinc-800 to-zinc-900">
-                  <div className="absolute inset-2 rounded-lg border-2 border-dashed border-amber-600/30" />
-                  <div className="flex flex-col items-center gap-2">
-                    <svg className="h-8 w-8 text-amber-500/80" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                    </svg>
-                    <span className="text-[8px] font-bold text-amber-600/80 uppercase tracking-widest">Robando</span>
-                  </div>
-                </div>
-              ) : (
-                <DrawRevealCard cardName={drawAnim.card.name} />
-              )}
-            </div>
-          </div>
+        {drawAnim.card && (
+          <DrawRevealCard
+            imageUrl={drawAnim.imageUrl}
+            color={CARD_COLOR_HEX[drawAnim.card.color === 'land' ? 'land' : drawAnim.card.color] || '#34d399'}
+            phase={drawAnim.phase}
+          />
         )}
 
         {/* Player life + progress bar */}
@@ -1397,14 +1506,8 @@ function GameBoard({ lesson, sceneIdx, displayState, hiddenCardIds, onCardClick,
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <div className="flex items-center justify-between rounded-xl border border-zinc-800/50 bg-zinc-950/40 backdrop-blur-sm px-3 py-2">
-            <div className="flex items-center gap-1.5">
-              <svg className="h-4 w-4 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
-              <span className="text-sm font-bold text-emerald-400 tabular-nums">{state.playerLife}</span>
-            </div>
-            <div className="flex items-center gap-1">
+          <div className="flex items-center justify-between rounded-xl border border-zinc-800/50 bg-zinc-950/40 backdrop-blur-sm px-3 py-2 relative">
+            <div className="flex items-center gap-2">
               {lesson.scenes.map((_, i) => (
                 <div
                   key={i}
@@ -1413,6 +1516,12 @@ function GameBoard({ lesson, sceneIdx, displayState, hiddenCardIds, onCardClick,
                   }`}
                 />
               ))}
+            </div>
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2">
+              <svg className="h-5 w-5 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+              <span className="text-xl font-bold text-emerald-400 tabular-nums">{state.playerLife}</span>
             </div>
             <span className="text-[10px] text-zinc-600 tabular-nums">{sceneIdx + 1}/{lesson.scenes.length}</span>
           </div>
@@ -1482,7 +1591,6 @@ export default function GameDemo({ onBack }) {
   const [attackAnim, setAttackAnim] = useState(null)
   const [hitVisible, setHitVisible] = useState(false)
   const advanceTimer = useRef(null)
-  const pendingAttackRef = useRef(null)
   const prevPhaseRef = useRef('')
 
   const scene = lesson?.scenes[sceneIdx]
@@ -1499,24 +1607,6 @@ export default function GameDemo({ onBack }) {
     clearTimeout(advanceTimer.current)
     setAdvancing(true)
     setTransitioning(true)
-
-    const cur = lesson.scenes[sceneIdx]
-    const next = lesson.scenes[sceneIdx + 1]
-    if (next && cur.interaction.type === 'click_board' && !next.popup?.targeting) {
-      const cardId = cur.interaction.highlightIds?.[0]
-      const card = cardId ? cur.state.playerBoard.find(c => c.id === cardId) : null
-      if (card) {
-        const oppLifeDrop = cur.state.opponentLife - next.state.opponentLife
-        const deadOpp = cur.state.opponentBoard.find(
-          oc => !next.state.opponentBoard.some(nc => nc.id === oc.id)
-        )
-        if (oppLifeDrop > 0) {
-          pendingAttackRef.current = { card, damage: oppLifeDrop, type: 'direct' }
-        } else if (deadOpp) {
-          pendingAttackRef.current = { card, damage: card.power || 0, type: 'combat' }
-        }
-      }
-    }
 
     setTimeout(() => {
       setSceneIdx(i => {
@@ -1601,59 +1691,81 @@ export default function GameDemo({ onBack }) {
     const targeting = currentScene?.popup?.targeting
 
     if (targeting && lesson && sceneIdx > 0) {
-      pendingAttackRef.current = null
       const prevState = lesson.scenes[sceneIdx - 1].state
       const allCards = getAllCards(prevState)
       const source = allCards.find((c) => c.id === targeting.sourceId)
       const target = allCards.find((c) => c.id === targeting.targetId)
-      if (!source || !target) return
+      if (source && target) {
+        const targetOnOpponent = (prevState.opponentBoard || []).some((c) => c.id === targeting.targetId)
 
-      const targetOnOpponent = (prevState.opponentBoard || []).some((c) => c.id === targeting.targetId)
+        window.setTimeout(() => {
+          const sourceEl = document.querySelector(`[data-card-id="${targeting.sourceId}"]`)
+          const targetEl = document.querySelector(`[data-card-id="${targeting.targetId}"]`)
+          const playerGraveEl = document.querySelector('[data-zone="player-graveyard"]')
+          const opponentGraveEl = document.querySelector('[data-zone="opponent-graveyard"]')
+          const playerGraveRect = playerGraveEl?.getBoundingClientRect() ?? null
+          const opponentGraveRect = opponentGraveEl?.getBoundingClientRect() ?? null
 
-      window.setTimeout(() => {
-        const sourceEl = document.querySelector(`[data-card-id="${targeting.sourceId}"]`)
-        const targetEl = document.querySelector(`[data-card-id="${targeting.targetId}"]`)
-        const playerGraveEl = document.querySelector('[data-zone="player-graveyard"]')
-        const opponentGraveEl = document.querySelector('[data-zone="opponent-graveyard"]')
-        const playerGraveRect = playerGraveEl?.getBoundingClientRect() ?? null
-        const opponentGraveRect = opponentGraveEl?.getBoundingClientRect() ?? null
-
-        setTargetAnim({
-          source,
-          target,
-          mode: targeting.mode || 'spell',
-          sourceRect: sourceEl?.getBoundingClientRect() ?? null,
-          targetRect: targetEl?.getBoundingClientRect() ?? null,
-          playerGraveRect,
-          opponentGraveRect,
-          targetGraveRect: targetOnOpponent ? opponentGraveRect : playerGraveRect,
-        })
-      }, 80)
-      return
+          setTargetAnim({
+            source,
+            target,
+            mode: targeting.mode || 'spell',
+            sourceRect: sourceEl?.getBoundingClientRect() ?? null,
+            targetRect: targetEl?.getBoundingClientRect() ?? null,
+            playerGraveRect,
+            opponentGraveRect,
+            targetGraveRect: targetOnOpponent ? opponentGraveRect : playerGraveRect,
+          })
+        }, 80)
+      }
     }
 
-    if (pendingAttackRef.current) {
-      const attack = pendingAttackRef.current
-      pendingAttackRef.current = null
-
-      const cardEl = document.querySelector(`[data-card-id="${attack.card.id}"]`)
-      if (cardEl) {
-        const r = cardEl.getBoundingClientRect()
-        attack.startRect = { top: r.top, left: r.left, width: r.width, height: r.height }
+    if (lesson && sceneIdx > 0) {
+      const prevState = lesson.scenes[sceneIdx - 1].state
+      const curState = currentScene.state
+      const lifeDrop = prevState.opponentLife - curState.opponentLife
+      if (lifeDrop > 0) {
+        const prevBoard = prevState.playerBoard || []
+        const curBoard = curState.playerBoard || []
+        const attackers = prevBoard.filter(pc => {
+          const cur = curBoard.find(c => c.id === pc.id)
+          return cur && pc.tapped === false && cur.tapped === true && pc.power != null
+        })
+        const blockedId = targeting?.sourceId
+        let attacker = blockedId
+          ? attackers.find(a => a.id !== blockedId)
+          : attackers[0]
+        if (!attacker && lifeDrop > 0 && blockedId) {
+          attacker = attackers.find(a => a.id === blockedId)
+        }
+        const attackData = { attacker, damage: lifeDrop }
+        if (targeting) {
+          pendingAttackRef.current = attackData
+        } else {
+          startAttackFly(attackData)
+        }
       }
-
-      setAttackAnim(attack)
-      if (attack.type === 'combat') {
-        setTimeout(() => setHitVisible(true), 200)
-      } else {
-        setTimeout(() => setHitVisible(true), 600)
-      }
-      setTimeout(() => {
-        setAttackAnim(null)
-        setHitVisible(false)
-      }, 1500)
     }
   }, [lesson, sceneIdx])
+
+  const pendingAttackRef = useRef(null)
+
+  function startAttackFly({ attacker, damage }) {
+    if (attacker) {
+      const cardEl = document.querySelector(`[data-card-id="${attacker.id}"]`)
+      const r = cardEl?.getBoundingClientRect()
+      const startRect = r ? { top: r.top, left: r.left, width: r.width, height: r.height } : null
+      setAttackAnim({ card: attacker, damage, type: 'combat', startRect })
+      setTimeout(() => setHitVisible(true), 400)
+    } else {
+      setAttackAnim({ card: null, damage, type: 'direct' })
+      setTimeout(() => setHitVisible(true), 600)
+    }
+    setTimeout(() => {
+      setAttackAnim(null)
+      setHitVisible(false)
+    }, 1500)
+  }
 
   useEffect(() => {
     if (!lesson) { setPopupData(null); return }
@@ -1687,6 +1799,10 @@ export default function GameDemo({ onBack }) {
     setTargetAnim(null)
     setTargetAnimPhase(null)
     setTargetResolved(true)
+    if (pendingAttackRef.current) {
+      startAttackFly(pendingAttackRef.current)
+      pendingAttackRef.current = null
+    }
   }, [])
 
   const prevSceneState = sceneIdx > 0 ? lesson?.scenes[sceneIdx - 1]?.state : null
@@ -1717,7 +1833,7 @@ export default function GameDemo({ onBack }) {
         displayState={boardState}
         hiddenCardIds={hiddenCardIds}
         onCardClick={handleCardClick}
-        lifeRecoil={hitVisible && attackAnim?.type === 'direct'}
+        lifeRecoil={hitVisible && attackAnim?.damage > 0}
       />
 
       {/* Bottom tutorial panel */}
@@ -1804,19 +1920,11 @@ export default function GameDemo({ onBack }) {
         </div>
       </motion.div>
 
-      {attackAnim && attackAnim.type !== 'combat' && (
-        <AttackFly card={attackAnim.card} damage={attackAnim.damage} startRect={attackAnim.startRect} />
-      )}
-
-      {hitVisible && (
-        <div className={`fixed inset-0 z-[998] pointer-events-none flex ${attackAnim?.type === 'combat' ? 'items-center justify-center' : 'items-start justify-center pt-[7%]'}`}>
-          <div className="absolute w-48 h-48 rounded-full bg-gradient-to-r from-red-500/20 to-orange-500/10 animate-hit-flash" />
-          <div className="absolute w-20 h-20 rounded-full border-[3px] border-red-400/80 animate-hit-ring" />
-          <div className="absolute w-36 h-36 rounded-full border-2 border-red-400/40 animate-hit-ring" style={{ animationDelay: '0.08s' }} />
-          <div className="absolute pt-4 flex items-center gap-2 animate-hit-damage">
-            <span className="text-4xl sm:text-5xl font-black text-red-400 drop-shadow-[0_0_25px_rgba(239,68,68,0.9)]">-{attackAnim?.damage}</span>
-          </div>
-        </div>
+      {attackAnim && attackAnim.type === 'combat' && (
+        <AttackFly
+          attack={attackAnim}
+          onComplete={() => {}}
+        />
       )}
 
       {targetAnim ? (

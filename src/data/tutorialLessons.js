@@ -750,8 +750,8 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase de Combate',
-        instruction: 'Ataca con el **Oso Gris** (F:2) que vence al Goblin (R:1).',
-        tip: 'F ≥ R enemiga = ganas. La diferencia decide quién vive.',
+        instruction: 'Ataca con el **Oso Gris** y el **Lobo de Plata**. El Goblin solo puede bloquear a uno.',
+        tip: 'Puedes atacar con varias criaturas. Elige ambas para presionar al oponente.',
         state: {
           playerLife: 20, opponentLife: 20,
           playerHand: [
@@ -772,46 +772,18 @@ export const TUTORIAL_LESSONS = [
           ],
           opponentHandCount: 4,
         },
-        interaction: { type: 'click_board', highlightIds: ['gb2'] },
+        interaction: { type: 'click_board', highlightIds: ['gb2', 'sl'] },
       },
       {
         phase: 'Fase de Combate',
-        instruction: 'F:2 > R:1: el Goblin muere, el Oso sobrevive.',
+        instruction: '**Oso Gris** bloqueado por el Goblin → F:2 > R:1, Goblin muere. **Lobo de Plata** sin bloqueador → **2 daños directos**.',
         popup: {
-          title: '⚔️ ¡Combate Resuelto!',
-          description: 'Oso Gris (F:2) vs Goblin (R:1): F > R → Goblin muere. Goblin (F:1) vs Oso (R:2): F < R → Oso sobrevive.',
-          cardIds: ['gb2', 'og2'],
+          title: '⚔️ ¡Ataque Simultáneo!',
+          description: 'Oso Gris (F:2) vs Goblin (R:1): F > R → Goblin muere, Oso sobrevive. Lobo de Plata sin bloqueador: 2 daños directos al oponente.',
+          cardIds: ['gb2', 'og2', 'sl'],
           targeting: { sourceId: 'gb2', targetId: 'og2', mode: 'combat' },
         },
-        tip: 'El daño sobrante no se transfiere. La Resistencia absorbe el golpe.',
-        state: {
-          playerLife: 20, opponentLife: 20,
-          playerHand: [
-            { id: 'pl2', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-            { id: 'bf2', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-            { id: 'gg2', name: 'Crecimiento Gigante', typeLine: 'Instantáneo', manaCost: '{G}', cmc: 1, color: 'G', power: null, toughness: null, tapped: false },
-            { id: 'pl3', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-          ],
-          playerBoard: [
-            { id: 'pl1b', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-            { id: 'bf1b', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-            { id: 'sl', name: 'Lobo de Plata', typeLine: 'Criatura — Felino', manaCost: '{1}{W}', cmc: 2, color: 'W', power: 2, toughness: 2, tapped: false },
-            { id: 'gb2', name: 'Oso Gris', typeLine: 'Criatura — Oso', manaCost: '{1}{G}', cmc: 2, color: 'G', power: 2, toughness: 2, tapped: true },
-          ],
-          opponentBoard: [
-            { id: 'om3', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
-          ],
-          opponentHandCount: 4,
-          opponentGraveyard: [
-            { id: 'og2', name: 'Goblin Rezagado', typeLine: 'Criatura — Goblin', manaCost: '{R}', cmc: 1, color: 'R', power: 1, toughness: 1, tapped: false },
-          ],
-        },
-        interaction: { type: 'auto', delay: 3500 },
-      },
-      {
-        phase: 'Fase de Combate',
-        instruction: 'Goblin muere. Ataca con el **Lobo de Plata** para más daño directo.',
-        tip: 'Sin bloqueadores, aprovecha para reducir la vida del oponente.',
+        tip: 'Atacar con varias criaturas fuerza al oponente a elegir qué bloquear. Las criaturas sin bloqueador golpean directo.',
         state: {
           playerLife: 20, opponentLife: 18,
           playerHand: [
@@ -823,7 +795,7 @@ export const TUTORIAL_LESSONS = [
           playerBoard: [
             { id: 'pl1b', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'bf1b', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-            { id: 'sl', name: 'Lobo de Plata', typeLine: 'Criatura — Felino', manaCost: '{1}{W}', cmc: 2, color: 'W', power: 2, toughness: 2, tapped: false },
+            { id: 'sl', name: 'Lobo de Plata', typeLine: 'Criatura — Felino', manaCost: '{1}{W}', cmc: 2, color: 'W', power: 2, toughness: 2, tapped: true },
             { id: 'gb2', name: 'Oso Gris', typeLine: 'Criatura — Oso', manaCost: '{1}{G}', cmc: 2, color: 'G', power: 2, toughness: 2, tapped: true },
           ],
           opponentBoard: [
@@ -834,7 +806,7 @@ export const TUTORIAL_LESSONS = [
             { id: 'og2', name: 'Goblin Rezagado', typeLine: 'Criatura — Goblin', manaCost: '{R}', cmc: 1, color: 'R', power: 1, toughness: 1, tapped: false },
           ],
         },
-        interaction: { type: 'auto', delay: 3000 },
+        interaction: { type: 'auto', delay: 3500 },
       },
       {
         phase: 'Lección Completada',
@@ -850,7 +822,7 @@ export const TUTORIAL_LESSONS = [
           playerBoard: [
             { id: 'pl1b', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'bf1b', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-            { id: 'sl', name: 'Lobo de Plata', typeLine: 'Criatura — Felino', manaCost: '{1}{W}', cmc: 2, color: 'W', power: 2, toughness: 2, tapped: false },
+            { id: 'sl', name: 'Lobo de Plata', typeLine: 'Criatura — Felino', manaCost: '{1}{W}', cmc: 2, color: 'W', power: 2, toughness: 2, tapped: true },
             { id: 'gb2', name: 'Oso Gris', typeLine: 'Criatura — Oso', manaCost: '{1}{G}', cmc: 2, color: 'G', power: 2, toughness: 2, tapped: true },
           ],
           opponentBoard: [
@@ -1156,6 +1128,358 @@ export const TUTORIAL_LESSONS = [
           opponentGraveyard: [
             { id: 'og1b', name: 'Gremlin de Sulfuro', typeLine: 'Criatura — Gremlin', manaCost: '{1}{R}', cmc: 2, color: 'R', power: 2, toughness: 2, tapped: false },
           ],
+        },
+        interaction: { type: 'button', label: 'Completar Lección' },
+      },
+    ],
+  },
+  {
+    id: 'furia-del-bosque',
+    title: 'Furia del Bosque',
+    subtitle: 'Arrollar',
+    description: 'Aprende cómo Arrollar permite que el daño sobrante de una criatura pase al oponente.',
+    deckPreview: ['Bosque', 'Montaña', 'Rino de Estampida'],
+    deckColors: ['R', 'G'],
+    color: 'red',
+    colorText: 'text-red-400',
+    colorBorder: 'border-red-500/30',
+    colorBg: 'bg-red-500/10',
+    scenes: [
+      {
+        phase: 'Inicio del Turno',
+        instruction: 'Bienvenido a **Furia del Bosque**. Aprenderás **Arrollar**: cuando una criatura atacante es bloqueada, el daño sobrante pasa al oponente.',
+        tip: 'Arrollar está representado por el icono de una pezuña. Si tu criatura tiene F:4 y el bloqueador R:2, los 2 puntos extras van directo a la vida rival.',
+        state: {
+          playerLife: 20, opponentLife: 20,
+          playerHand: [
+            { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: false },
+          ],
+          playerBoard: [],
+          opponentBoard: [],
+          opponentHandCount: 4,
+        },
+        interaction: { type: 'auto', delay: 3000 },
+      },
+      {
+        phase: 'Fase Principal',
+        instruction: 'Juega tierras. Con **3 Bosques y 2 Montañas** tendrás los {3}{G}{G} para invocar al **Rino de Estampida**.',
+        state: {
+          playerLife: 20, opponentLife: 20,
+          playerHand: [
+            { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: false },
+          ],
+          playerBoard: [],
+          opponentBoard: [],
+          opponentHandCount: 4,
+        },
+        interaction: { type: 'auto', delay: 2000 },
+      },
+      {
+        phase: 'Fase Principal',
+        instruction: 'Invoca al **Rino de Estampida** (F:4 / R:4, **Arrollar**).',
+        tip: 'Arrollar: el daño que sobrepase la Resistencia del bloqueador se aplica al oponente.',
+        state: {
+          playerLife: 20, opponentLife: 20,
+          playerHand: [
+            { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: false },
+          ],
+          playerBoard: [
+            { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+          ],
+          opponentBoard: [],
+          opponentHandCount: 4,
+        },
+        interaction: { type: 'click_hand', highlightIds: ['re'] },
+      },
+      {
+        phase: 'Fase Principal',
+        instruction: 'Rino de Estampida en el campo. **Pasa a combate** para atacar con Arrollar.',
+        tip: 'Ataca y observa cómo el daño sobrante atraviesa al bloqueador.',
+        state: {
+          playerLife: 20, opponentLife: 20,
+          playerHand: [
+            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+          ],
+          playerBoard: [
+            { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+          ],
+          opponentBoard: [],
+          opponentHandCount: 4,
+        },
+        interaction: { type: 'button', label: 'Pasar a Combate' },
+      },
+      {
+        phase: 'Turno del Oponente',
+        instruction: 'El oponente invoca un **Lobo de Plata** (F:2 / R:2) listo para bloquear.',
+        tip: 'Lobo de Plata tiene R:2. Tu Rino tiene F:4. El daño sobrante será 4 - 2 = 2.',
+        state: {
+          playerLife: 20, opponentLife: 20,
+          playerHand: [
+            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+          ],
+          playerBoard: [
+            { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: false },
+          ],
+          opponentBoard: [
+            { id: 'om3g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'lp', name: 'Lobo de Plata', typeLine: 'Criatura — Felino', manaCost: '{1}{W}', cmc: 2, color: 'W', power: 2, toughness: 2, tapped: false },
+          ],
+          opponentHandCount: 3,
+        },
+        interaction: { type: 'auto', delay: 3000 },
+      },
+      {
+        phase: 'Fase de Combate',
+        instruction: 'Ataca con el **Rino de Estampida**. El Lobo de Plata lo bloqueará, pero Arrollar hará que el daño sobrante pase al oponente.',
+        tip: 'El Lobo de Plata absorbe 2 de los 4 puntos de daño. Los 2 restantes pasan al oponente por Arrollar.',
+        state: {
+          playerLife: 20, opponentLife: 20,
+          playerHand: [
+            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+          ],
+          playerBoard: [
+            { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: false },
+          ],
+          opponentBoard: [
+            { id: 'om3g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'lp', name: 'Lobo de Plata', typeLine: 'Criatura — Felino', manaCost: '{1}{W}', cmc: 2, color: 'W', power: 2, toughness: 2, tapped: false },
+          ],
+          opponentHandCount: 3,
+        },
+        interaction: { type: 'click_board', highlightIds: ['re'] },
+      },
+      {
+        phase: 'Fase de Combate',
+        instruction: '¡**Arrollar** en acción! Lobo de Plata absorbe 2 daños y muere. Los 2 puntos sobrantes golpean directo al oponente.',
+        popup: {
+          title: '🌪️ ¡Arrollar!',
+          description: 'Rino de Estampida (F:4) vs Lobo de Plata (R:2): F > R con Arrollar → Lobo muere y los 2 puntos de daño sobrantes pasan al oponente.',
+          cardIds: ['re', 'lp'],
+          targeting: { sourceId: 're', targetId: 'lp', mode: 'combat' },
+        },
+        tip: 'Arrollar = el exceso de Fuerza sobre la Resistencia del bloqueador se aplica al jugador defensor. ¡Aprovecha criaturas con F grande!',
+        state: {
+          playerLife: 20, opponentLife: 18,
+          playerHand: [
+            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+          ],
+          playerBoard: [
+            { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: true },
+          ],
+          opponentBoard: [
+            { id: 'om3g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+          ],
+          opponentHandCount: 3,
+          opponentGraveyard: [
+            { id: 'lp', name: 'Lobo de Plata', typeLine: 'Criatura — Felino', manaCost: '{1}{W}', cmc: 2, color: 'W', power: 2, toughness: 2, tapped: false },
+          ],
+        },
+        interaction: { type: 'auto', delay: 4500 },
+      },
+      {
+        phase: 'Lección Completada',
+        instruction: 'Lección completa: **Arrollar** permite que el daño sobrante de una criatura pase al oponente.',
+        state: {
+          playerLife: 20, opponentLife: 18,
+          playerHand: [
+            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+          ],
+          playerBoard: [
+            { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: true },
+          ],
+          opponentBoard: [
+            { id: 'om3g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+          ],
+          opponentHandCount: 3,
+          opponentGraveyard: [
+            { id: 'lp', name: 'Lobo de Plata', typeLine: 'Criatura — Felino', manaCost: '{1}{W}', cmc: 2, color: 'W', power: 2, toughness: 2, tapped: false },
+          ],
+        },
+        interaction: { type: 'button', label: 'Completar Lección' },
+      },
+    ],
+  },
+  {
+    id: 'alas-de-plata',
+    title: 'Alas de Plata',
+    subtitle: 'Habilidad Volar',
+    description: 'Aprende cómo **Volar** te permite evitar bloqueadores y atacar directamente.',
+    deckPreview: ['Llanura', 'Serra Angel'],
+    deckColors: ['W'],
+    color: 'amber',
+    colorText: 'text-amber-400',
+    colorBorder: 'border-amber-500/30',
+    colorBg: 'bg-amber-500/10',
+    scenes: [
+      {
+        phase: 'Inicio del Turno',
+        instruction: 'Bienvenido a **Alas de Plata**. Ya tienes 4 Llanuras en juego. Solo te falta una más para invocar a la **Serra Angel**.',
+        tip: 'El blanco es el color del orden, la protección y las criaturas voladoras. Destaca por su versatilidad.',
+        state: {
+          playerLife: 20, opponentLife: 20,
+          playerHand: [
+            { id: 'p5', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'sa', name: 'Serra Angel', typeLine: 'Criatura — Ángel', manaCost: '{3}{W}{W}', cmc: 5, color: 'W', power: 4, toughness: 4, tapped: false },
+          ],
+          playerBoard: [
+            { id: 'p1', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p2', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p3', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p4', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+          ],
+          opponentBoard: [
+            { id: 'ob', name: 'Oso Gris', typeLine: 'Criatura — Oso', manaCost: '{1}{G}', cmc: 2, color: 'G', power: 2, toughness: 2, tapped: false },
+          ],
+          opponentHandCount: 4,
+        },
+        interaction: { type: 'auto', delay: 3000 },
+      },
+      {
+        phase: 'Fase Principal',
+        instruction: 'Juega tu **Llanura** para llegar a 5 manás. Así podrás invocar a la **Serra Angel** (cuesta {3}{W}{W}).',
+        tip: 'Cada Llanura produce {W}. Con 5 tienes justo para {3}{W}{W}.',
+        state: {
+          playerLife: 20, opponentLife: 20,
+          playerHand: [
+            { id: 'p5', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'sa', name: 'Serra Angel', typeLine: 'Criatura — Ángel', manaCost: '{3}{W}{W}', cmc: 5, color: 'W', power: 4, toughness: 4, tapped: false },
+          ],
+          playerBoard: [
+            { id: 'p1', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p2', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p3', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p4', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+          ],
+          opponentBoard: [
+            { id: 'ob', name: 'Oso Gris', typeLine: 'Criatura — Oso', manaCost: '{1}{G}', cmc: 2, color: 'G', power: 2, toughness: 2, tapped: false },
+          ],
+          opponentHandCount: 4,
+        },
+        interaction: { type: 'click_hand', highlightIds: ['p5'] },
+      },
+      {
+        phase: 'Fase Principal',
+        instruction: 'Invoca a la **Serra Angel** (F:4 / R:4, **Volar** y **Vigilancia**). ¡Con Volar podrá atacar sin que el Oso Gris la bloquee!',
+        tip: 'Serra Angel es una de las criaturas más icónicas de Magic. Cuesta {3}{W}{W} = 3 manás genéricos + 2 blancos.',
+        state: {
+          playerLife: 20, opponentLife: 20,
+          playerHand: [
+            { id: 'sa', name: 'Serra Angel', typeLine: 'Criatura — Ángel', manaCost: '{3}{W}{W}', cmc: 5, color: 'W', power: 4, toughness: 4, tapped: false },
+          ],
+          playerBoard: [
+            { id: 'p1', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p2', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p3', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p4', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p5', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+          ],
+          opponentBoard: [
+            { id: 'ob', name: 'Oso Gris', typeLine: 'Criatura — Oso', manaCost: '{1}{G}', cmc: 2, color: 'G', power: 2, toughness: 2, tapped: false },
+          ],
+          opponentHandCount: 4,
+        },
+        interaction: { type: 'click_hand', highlightIds: ['sa'] },
+      },
+      {
+        phase: 'Fase de Combate',
+        instruction: '**Ataca con la Serra Angel**. El Oso Gris **no tiene Volar**, así que **no puede bloquear**. ¡Vuela directo al oponente!',
+        tip: 'Volar solo puede ser bloqueado por criaturas con Volar o Alcance.',
+        state: {
+          playerLife: 20, opponentLife: 20,
+          playerHand: [],
+          playerBoard: [
+            { id: 'p1', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p2', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p3', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p4', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p5', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'sa', name: 'Serra Angel', typeLine: 'Criatura — Ángel', manaCost: '{3}{W}{W}', cmc: 5, color: 'W', power: 4, toughness: 4, tapped: false },
+          ],
+          opponentBoard: [
+            { id: 'ob', name: 'Oso Gris', typeLine: 'Criatura — Oso', manaCost: '{1}{G}', cmc: 2, color: 'G', power: 2, toughness: 2, tapped: false },
+          ],
+          opponentHandCount: 4,
+        },
+        interaction: { type: 'click_board', highlightIds: ['sa'] },
+      },
+      {
+        phase: 'Fase de Combate',
+        instruction: '¡**Volar** en acción! La Serra Angel vuela sobre el Oso Gris y golpea directamente al oponente por **4 puntos de daño**.',
+        popup: {
+          title: '🪽 ¡Volar!',
+          description: '**Volar**: una criatura con Volar solo puede ser bloqueada por criaturas con Volar o **Alcance**. El Oso Gris no tiene ninguna, ¡así que el ataque es imparable!',
+          cardIds: ['sa'],
+        },
+        tip: 'Siempre revisa si el oponente tiene criaturas con Volar o Alcance antes de atacar con una criatura voladora.',
+        state: {
+          playerLife: 20, opponentLife: 16,
+          playerHand: [],
+          playerBoard: [
+            { id: 'p1', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p2', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p3', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p4', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p5', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'sa', name: 'Serra Angel', typeLine: 'Criatura — Ángel', manaCost: '{3}{W}{W}', cmc: 5, color: 'W', power: 4, toughness: 4, tapped: true },
+          ],
+          opponentBoard: [
+            { id: 'ob', name: 'Oso Gris', typeLine: 'Criatura — Oso', manaCost: '{1}{G}', cmc: 2, color: 'G', power: 2, toughness: 2, tapped: false },
+          ],
+          opponentHandCount: 4,
+        },
+        interaction: { type: 'auto', delay: 3500 },
+      },
+      {
+        phase: 'Lección Completada',
+        instruction: '¡Lección completa! **Volar** te permite esquivar criaturas terrestres y hacer daño directo. Busca criaturas con Volar para presionar la vida del oponente.',
+        state: {
+          playerLife: 20, opponentLife: 16,
+          playerHand: [],
+          playerBoard: [
+            { id: 'p1', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p2', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p3', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p4', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'p5', name: 'Llanura', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'sa', name: 'Serra Angel', typeLine: 'Criatura — Ángel', manaCost: '{3}{W}{W}', cmc: 5, color: 'W', power: 4, toughness: 4, tapped: true },
+          ],
+          opponentBoard: [
+            { id: 'ob', name: 'Oso Gris', typeLine: 'Criatura — Oso', manaCost: '{1}{G}', cmc: 2, color: 'G', power: 2, toughness: 2, tapped: false },
+          ],
+          opponentHandCount: 4,
         },
         interaction: { type: 'button', label: 'Completar Lección' },
       },
