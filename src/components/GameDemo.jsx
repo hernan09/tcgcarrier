@@ -3,6 +3,18 @@ import { motion } from 'framer-motion'
 import { TUTORIAL_LESSONS } from '../data/tutorialLessons'
 import { ManaSymbol, ManaSymbolGroup } from './ManaSymbol'
 
+const ALLOWED_IMAGE_ORIGINS = ['https://cards.scryfall.io']
+function isAllowedImageUrl(url) {
+  if (!url) return false
+  try {
+    const u = new URL(url)
+    return ALLOWED_IMAGE_ORIGINS.some(o => u.origin === o)
+  } catch { return false }
+}
+function safeImageUrl(url) {
+  return isAllowedImageUrl(url) ? url : null
+}
+
 const CARD_IMAGE_CACHE = new Map([
   ['Bosque', 'https://cards.scryfall.io/normal/front/5/f/5f533364-0f91-4e49-aaeb-83c4c1f6d316.jpg?1777658419'],
   ['Montaña', 'https://cards.scryfall.io/normal/front/5/1/51acfb01-4b0b-48fc-9704-a9b4a1e43a23.jpg?1777658413'],
@@ -146,7 +158,7 @@ async function fetchAndPreload(cardName) {
   }
 
   if (imageUrl) {
-    CARD_IMAGE_CACHE.set(cardName, imageUrl)
+    CARD_IMAGE_CACHE.set(cardName, safeImageUrl(imageUrl))
     return imageUrl
   }
   CARD_IMAGE_CACHE.set(cardName, null)

@@ -888,6 +888,7 @@ export const TUTORIAL_LESSONS = [
             { id: 'om1', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'om2', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'om3', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'om4', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
           ],
           opponentHandCount: 3,
         },
@@ -911,6 +912,8 @@ export const TUTORIAL_LESSONS = [
             { id: 'om1', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
             { id: 'om2', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
             { id: 'om3', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'om4', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'om5', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
             { id: 'od1', name: 'Garra Ígnea', typeLine: 'Criatura — Dragón', manaCost: '{2}{R}{R}{R}', cmc: 5, color: 'R', power: 5, toughness: 5, tapped: false },
           ],
           opponentHandCount: 2,
@@ -939,6 +942,8 @@ export const TUTORIAL_LESSONS = [
             { id: 'om1', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
             { id: 'om2', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
             { id: 'om3', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'om4', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'om5', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
           ],
           opponentHandCount: 2,
           playerGraveyard: [
@@ -965,6 +970,8 @@ export const TUTORIAL_LESSONS = [
             { id: 'om1', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
             { id: 'om2', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
             { id: 'om3', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'om4', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'om5', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
           ],
           opponentHandCount: 2,
           opponentGraveyard: [
@@ -1167,38 +1174,40 @@ export const TUTORIAL_LESSONS = [
       },
       {
         phase: 'Fase Principal',
-        instruction: 'Juega tierras. Con **3 Bosques y 2 Montañas** tendrás los {3}{G}{G} para invocar al **Rino de Estampida**.',
+        instruction: 'Ya tienes 4 tierras en juego. **Juega la Montaña** de tu mano para tener 5 manás e invocar al **Rino de Estampida**.',
+        tip: 'Necesitas {3}{G}{G} = 5 manás. Con 3 Bosques + 2 Montañas tienes justo.',
         state: {
           playerLife: 20, opponentLife: 20,
           playerHand: [
-            { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-            { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-            { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-            { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-            { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: false },
-          ],
-          playerBoard: [],
-          opponentBoard: [],
-          opponentHandCount: 4,
-        },
-        interaction: { type: 'auto', delay: 2000 },
-      },
-      {
-        phase: 'Fase Principal',
-        instruction: 'Invoca al **Rino de Estampida** (F:4 / R:4, **Arrollar**).',
-        tip: 'Arrollar: el daño que sobrepase la Resistencia del bloqueador se aplica al oponente.',
-        state: {
-          playerLife: 20, opponentLife: 20,
-          playerHand: [
-            { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-            { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-            { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: false },
           ],
           playerBoard: [
             { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+          ],
+          opponentBoard: [],
+          opponentHandCount: 4,
+        },
+        interaction: { type: 'click_hand', highlightIds: ['m2g'] },
+      },
+      {
+        phase: 'Fase Principal',
+        instruction: '¡5 manás! Ahora invoca al **Rino de Estampida** (F:4 / R:4, **Arrollar**).',
+        tip: 'Arrollar: el daño que sobrepase la Resistencia del bloqueador se aplica al oponente.',
+        state: {
+          playerLife: 20, opponentLife: 20,
+          playerHand: [
+            { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: false },
+          ],
+          playerBoard: [
+            { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
           ],
           opponentBoard: [],
           opponentHandCount: 4,
@@ -1211,14 +1220,14 @@ export const TUTORIAL_LESSONS = [
         tip: 'Ataca y observa cómo el daño sobrante atraviesa al bloqueador.',
         state: {
           playerLife: 20, opponentLife: 20,
-          playerHand: [
-            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-          ],
+          playerHand: [],
           playerBoard: [
             { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
             { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
             { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
             { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: true },
+            { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: false },
           ],
           opponentBoard: [],
           opponentHandCount: 4,
@@ -1231,14 +1240,13 @@ export const TUTORIAL_LESSONS = [
         tip: 'Lobo de Plata tiene R:2. Tu Rino tiene F:4. El daño sobrante será 4 - 2 = 2.',
         state: {
           playerLife: 20, opponentLife: 20,
-          playerHand: [
-            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-          ],
+          playerHand: [],
           playerBoard: [
             { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: false },
           ],
           opponentBoard: [
@@ -1255,14 +1263,13 @@ export const TUTORIAL_LESSONS = [
         tip: 'El Lobo de Plata absorbe 2 de los 4 puntos de daño. Los 2 restantes pasan al oponente por Arrollar.',
         state: {
           playerLife: 20, opponentLife: 20,
-          playerHand: [
-            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-          ],
+          playerHand: [],
           playerBoard: [
             { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: false },
           ],
           opponentBoard: [
@@ -1285,14 +1292,13 @@ export const TUTORIAL_LESSONS = [
         tip: 'Arrollar = el exceso de Fuerza sobre la Resistencia del bloqueador se aplica al jugador defensor. ¡Aprovecha criaturas con F grande!',
         state: {
           playerLife: 20, opponentLife: 18,
-          playerHand: [
-            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-          ],
+          playerHand: [],
           playerBoard: [
             { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: true },
           ],
           opponentBoard: [
@@ -1310,14 +1316,13 @@ export const TUTORIAL_LESSONS = [
         instruction: 'Lección completa: **Arrollar** permite que el daño sobrante de una criatura pase al oponente.',
         state: {
           playerLife: 20, opponentLife: 18,
-          playerHand: [
-            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
-          ],
+          playerHand: [],
           playerBoard: [
             { id: 'f1g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'f2g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'f3g', name: 'Bosque', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 'm1g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
+            { id: 'm2g', name: 'Montaña', typeLine: 'Tierra Básica', manaCost: '', cmc: 0, color: 'land', power: null, toughness: null, tapped: false },
             { id: 're', name: 'Rino de Estampida', typeLine: 'Criatura — Rhino', manaCost: '{3}{G}{G}', cmc: 5, color: 'G', power: 4, toughness: 4, tapped: true },
           ],
           opponentBoard: [

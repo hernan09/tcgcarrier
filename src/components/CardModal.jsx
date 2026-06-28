@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { ManaSymbol } from './ManaSymbol'
 
 const rarityColors = {
   common: 'text-zinc-400',
@@ -68,7 +69,11 @@ export default function CardModal({ card, onClose, onAddToCart }) {
             <div>
               <h2 className="text-base font-bold leading-tight text-zinc-100 sm:text-xl">{card.name}</h2>
               {card.mana_cost && (
-                <p className="mt-0.5 text-sm sm:mt-1 sm:text-lg" dangerouslySetInnerHTML={{ __html: card.mana_cost }} />
+                <p className="mt-0.5 inline-flex flex-wrap items-center gap-0.5 text-sm sm:mt-1 sm:text-lg">
+                  {(card.mana_cost.match(/\{[^}]+\}/g) || []).map((s, i) => (
+                    <ManaSymbol key={i} symbol={s.replace(/[{}]/g, '')} size="cost" />
+                  ))}
+                </p>
               )}
             </div>
             {card.rarity && (
