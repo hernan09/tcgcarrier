@@ -13,6 +13,13 @@ const COUNTRY_COLORS = [
   '#18426a', '#1d5587', '#246aa7', '#2c7fc4', '#3595d4',
 ]
 
+const FORMAT_COLORS = {
+  EDH: '#ff9632',
+  Standard: '#4d8cf7',
+  Modern: '#a855f7',
+  Pioneer: '#22c55e',
+}
+
 function hashColor(name) {
   let hash = 0
   for (let i = 0; i < name.length; i++) {
@@ -184,7 +191,14 @@ function CameraController({ selected, controlsRef, camDist }) {
 const API_BASE = '/api/topdeck'
 const FORMATS = ['EDH', 'Standard', 'Modern', 'Pioneer']
 
-function createPinTexture() {
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
+function createPinTexture(color) {
   if (typeof document === 'undefined') return null
   const size = 48
   const canvas = document.createElement('canvas')
@@ -194,10 +208,10 @@ function createPinTexture() {
   const c = size / 2
 
   const gradient = ctx.createRadialGradient(c, c, 0, c, c, c)
-  gradient.addColorStop(0, 'rgba(255, 150, 50, 1)')
-  gradient.addColorStop(0.25, 'rgba(255, 120, 40, 0.9)')
-  gradient.addColorStop(0.5, 'rgba(255, 90, 30, 0.5)')
-  gradient.addColorStop(1, 'rgba(255, 60, 20, 0)')
+  gradient.addColorStop(0, hexToRgba(color, 1))
+  gradient.addColorStop(0.25, hexToRgba(color, 0.9))
+  gradient.addColorStop(0.5, hexToRgba(color, 0.5))
+  gradient.addColorStop(1, hexToRgba(color, 0))
   ctx.fillStyle = gradient
   ctx.fillRect(0, 0, size, size)
 
@@ -209,14 +223,17 @@ function createPinTexture() {
   return new THREE.CanvasTexture(canvas)
 }
 
-let PIN_TEX_CACHE = null
+const PIN_TEX_CACHE = new Map()
 
 function TournamentPin({ pin, onClick }) {
   const ref = useRef()
+  const color = FORMAT_COLORS[pin.format] || '#ff9632'
 
-  if (!PIN_TEX_CACHE) {
-    PIN_TEX_CACHE = createPinTexture()
+  if (!PIN_TEX_CACHE.has(color)) {
+    PIN_TEX_CACHE.set(color, createPinTexture(color))
   }
+
+  const texture = PIN_TEX_CACHE.get(color)
 
   useFrame(({ clock }) => {
     if (ref.current) {
@@ -236,7 +253,7 @@ function TournamentPin({ pin, onClick }) {
       }}
     >
       <spriteMaterial
-        map={PIN_TEX_CACHE}
+        map={texture}
         transparent
         depthTest={true}
         depthWrite={false}
@@ -316,6 +333,19 @@ function processFeatures(feats) {
   return countriesData
 }
 
+function extractDeck(deckObj) {
+  if (!deckObj) return null
+  return {
+    commanders: Object.entries(deckObj.Commanders || {}).map(([name, info]) => ({
+      name, id: info.id, count: info.count,
+    })),
+    mainboard: Object.entries(deckObj.Mainboard || {}).map(([name, info]) => ({
+      name, id: info.id, count: info.count,
+    })),
+    metadata: deckObj.metadata,
+  }
+}
+
 function processTournaments(allTournaments) {
   const seen = new Map()
   for (const t of allTournaments) {
@@ -334,25 +364,36 @@ function processTournaments(allTournaments) {
         lat,
         lng,
         pos: lngLatTo3D(lng, lat, R * 1.06),
+        format: '',
+        allFormats: new Set(),
         tournaments: [],
       })
     }
-    locMap.get(key).tournaments.push({
+    const entry = locMap.get(key)
+    const fmt = t.format || 'Unknown'
+    entry.allFormats.add(fmt)
+    if (!entry.format) entry.format = fmt
+    entry.tournaments.push({
       tid: t.TID,
       name: t.tournamentName || t.name || 'Sin nombre',
-      format: t.format || '',
+      format: fmt,
       startDate: t.startDate || 0,
       city: t.eventData?.city || '',
       state: t.eventData?.state || '',
       address: t.eventData?.address || '',
       players: t.standings?.length || 0,
+      winnerDeck: extractDeck(t.standings?.[0]?.deckObj),
     })
+  }
+
+  for (const pin of locMap.values()) {
+    pin.format = [...pin.allFormats][0]
   }
 
   return Array.from(locMap.values())
 }
 
-export default function GlobeScene({ selected, onReady, onSelectTournament, onSelectCountry, camDist }) {
+export default function GlobeScene({ selected, onReady, onSelectTournament, onSelectCountry, camDist, activeFormats }) {
   const controlsRef = useRef()
   const clickSphereRef = useRef()
   const matRef = useRef()
@@ -363,6 +404,16 @@ export default function GlobeScene({ selected, onReady, onSelectTournament, onSe
   const [ready, setReady] = useState(false)
   const [loading, setLoading] = useState(true)
   const [tournamentPins, setTournamentPins] = useState([])
+
+  const visiblePins = useMemo(() => {
+    if (!activeFormats) return tournamentPins
+    return tournamentPins.filter(p => {
+      for (const fmt of p.allFormats) {
+        if (activeFormats.has(fmt)) return true
+      }
+      return false
+    })
+  }, [tournamentPins, activeFormats])
 
   useEffect(() => {
     let cancelled = false
@@ -439,7 +490,7 @@ export default function GlobeScene({ selected, onReady, onSelectTournament, onSe
     if (!foundCountry) return
 
     let nearbyPin = null
-    for (const pin of tournamentPins) {
+    for (const pin of visiblePins) {
       if (pointInCountry(pin.lat, pin.lng, foundCountry)) {
         nearbyPin = pin
         break
@@ -451,7 +502,7 @@ export default function GlobeScene({ selected, onReady, onSelectTournament, onSe
     } else {
       onSelectCountry(foundCountry)
     }
-  }, [countriesData, tournamentPins, onSelectTournament, onSelectCountry])
+  }, [countriesData, visiblePins, onSelectTournament, onSelectCountry])
 
   useEffect(() => {
     if (ready && matRef.current && textureRef.current) {
@@ -492,7 +543,7 @@ export default function GlobeScene({ selected, onReady, onSelectTournament, onSe
             <meshBasicMaterial transparent opacity={0} depthWrite={false} />
           </mesh>
 
-          {tournamentPins.map(p => (
+          {visiblePins.map(p => (
             <TournamentPin
               key={`${p.lat.toFixed(4)}_${p.lng.toFixed(4)}`}
               pin={p}
