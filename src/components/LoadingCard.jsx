@@ -27,11 +27,11 @@ export default function LoadingCard() {
 
   return (
     <div
-      className="flex flex-col items-center gap-4 px-4"
+      className="flex flex-col items-center gap-2 px-4"
       style={{ perspective: '800px' }}
     >
       <motion.div
-        className="relative w-[140px] h-[196px] sm:w-[180px] sm:h-[250px] max-w-[85vw]"
+        className="relative w-[110px] h-[154px] sm:w-[130px] sm:h-[182px] max-w-[85vw]"
         style={{ transformStyle: 'preserve-3d' }}
         animate={{ rotateY: [0, 180, 360] }}
         transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
@@ -134,7 +134,7 @@ export default function LoadingCard() {
         </div>
       </motion.div>
 
-      <p className="text-zinc-500 text-xs text-center">Cargando cartas...</p>
+      <p className="text-zinc-500 text-[10px] text-center">Cargando cartas...</p>
     </div>
   )
 }
