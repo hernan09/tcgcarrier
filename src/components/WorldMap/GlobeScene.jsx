@@ -510,7 +510,7 @@ export default function GlobeScene({ selected, onReady, onSelectTournament, onSe
     if (!foundCountry) return
 
     let nearbyPin = null
-    for (const pin of visiblePins) {
+    for (const pin of tournamentPins) {
       if (pointInCountry(pin.lat, pin.lng, foundCountry)) {
         nearbyPin = pin
         break
