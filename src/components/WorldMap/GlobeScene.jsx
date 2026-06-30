@@ -3,6 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { feature } from 'topojson-client'
+import { cacheGet, cacheSet } from '../../utils/cache'
 
 const R = 2
 
@@ -393,7 +394,7 @@ function processTournaments(allTournaments) {
   return Array.from(locMap.values())
 }
 
-export default function GlobeScene({ selected, onReady, onSelectTournament, onSelectCountry, camDist, activeFormats }) {
+export default function GlobeScene({ selected, onReady, onSelectTournament, onSelectCountry, camDist }) {
   const controlsRef = useRef()
   const clickSphereRef = useRef()
   const matRef = useRef()
@@ -405,16 +406,6 @@ export default function GlobeScene({ selected, onReady, onSelectTournament, onSe
   const [loading, setLoading] = useState(true)
   const [tournamentPins, setTournamentPins] = useState([])
 
-  const visiblePins = useMemo(() => {
-    if (!activeFormats) return tournamentPins
-    return tournamentPins.filter(p => {
-      for (const fmt of p.allFormats) {
-        if (activeFormats.has(fmt)) return true
-      }
-      return false
-    })
-  }, [tournamentPins, activeFormats])
-
   useEffect(() => {
     let cancelled = false
     let worldDone = false
@@ -423,20 +414,49 @@ export default function GlobeScene({ selected, onReady, onSelectTournament, onSe
     let tournamentRaw = null
     const controller = new AbortController()
 
-    function tryComplete() {
-      if (cancelled) return
-      if (!worldDone || !tournamentDone) return
-
-      const canvas = createGlobeTexture(worldData)
+    function applyData(feats, rawTournaments) {
+      const pins = processTournaments(rawTournaments)
+      const canvas = createGlobeTexture(feats)
       const tex = new THREE.CanvasTexture(canvas)
       tex.colorSpace = THREE.SRGBColorSpace
       tex.needsUpdate = true
       tex.anisotropy = 4
       textureRef.current = tex
 
-      setFeatures(worldData)
-      setCountriesData(processFeatures(worldData))
-      setTournamentPins(processTournaments(tournamentRaw))
+      setFeatures(feats)
+      setCountriesData(processFeatures(feats))
+      setTournamentPins(pins)
+      setReady(true)
+      setLoading(false)
+
+      const cacheablePins = pins.map(p => ({ ...p, pos: undefined }))
+      cacheSet('pins', cacheablePins)
+      cacheSet('world', feats)
+    }
+
+    function tryComplete() {
+      if (cancelled) return
+      if (!worldDone || !tournamentDone) return
+      applyData(worldData, tournamentRaw)
+    }
+
+    const cachedPins = cacheGet('pins')
+    const cachedWorld = cacheGet('world')
+    if (cachedWorld && cachedPins) {
+      const feats = cachedWorld
+      const pins = cachedPins.map(p => ({
+        ...p,
+        pos: lngLatTo3D(p.lng, p.lat, R * 1.06),
+      }))
+      const canvas = createGlobeTexture(feats)
+      const tex = new THREE.CanvasTexture(canvas)
+      tex.colorSpace = THREE.SRGBColorSpace
+      tex.needsUpdate = true
+      tex.anisotropy = 4
+      textureRef.current = tex
+      setFeatures(feats)
+      setCountriesData(processFeatures(feats))
+      setTournamentPins(pins)
       setReady(true)
       setLoading(false)
     }
@@ -502,7 +522,7 @@ export default function GlobeScene({ selected, onReady, onSelectTournament, onSe
     } else {
       onSelectCountry(foundCountry)
     }
-  }, [countriesData, visiblePins, onSelectTournament, onSelectCountry])
+  }, [countriesData, tournamentPins, onSelectTournament, onSelectCountry])
 
   useEffect(() => {
     if (ready && matRef.current && textureRef.current) {
@@ -543,7 +563,7 @@ export default function GlobeScene({ selected, onReady, onSelectTournament, onSe
             <meshBasicMaterial transparent opacity={0} depthWrite={false} />
           </mesh>
 
-          {visiblePins.map(p => (
+          {tournamentPins.map(p => (
             <TournamentPin
               key={`${p.lat.toFixed(4)}_${p.lng.toFixed(4)}`}
               pin={p}
