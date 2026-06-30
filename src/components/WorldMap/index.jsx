@@ -14,8 +14,11 @@ export default function WorldMap({ onBack }) {
 
   useEffect(() => {
     setCamDist(window.innerWidth < 640 ? 22 : 14)
-    setShowIntro(true)
   }, [])
+
+  useEffect(() => {
+    if (loaded) setShowIntro(true)
+  }, [loaded])
 
   const handleReady = useCallback(() => {
     setLoaded(true)
