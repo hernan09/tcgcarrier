@@ -15,12 +15,6 @@ function formatDate(ts) {
   })
 }
 
-function venueFromAddress(addr) {
-  if (!addr) return ''
-  const parts = addr.split(',').map(s => s.trim()).filter(Boolean)
-  return parts[0] || ''
-}
-
 function formatPlayers(n) {
   if (!n || n <= 0) return ''
   return n === 1 ? '1 jugador' : `${n} jugadores`
@@ -105,18 +99,14 @@ export default function TournamentCard({ pin, countryName, onClose }) {
                       {t.format || '?'}
                     </span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-zinc-500">
-                    <span className="truncate max-w-[160px]">{venueFromAddress(t.address)}</span>
+                  <div className="flex flex-wrap items-center gap-x-1 text-[11px] text-zinc-500">
                     {t.city && (
                       <span className="truncate">{t.city}{t.state ? `, ${t.state}` : ''}</span>
                     )}
                     {t.city && t.startDate ? <span>·</span> : null}
                     {t.startDate ? <span className="shrink-0">{formatDate(t.startDate)}</span> : null}
                     {t.players > 0 && (
-                      <>
-                        <span>·</span>
-                        <span className="shrink-0">{formatPlayers(t.players)}</span>
-                      </>
+                      <span className="shrink-0">· {formatPlayers(t.players)}</span>
                     )}
                   </div>
                 </div>

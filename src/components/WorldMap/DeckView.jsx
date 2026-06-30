@@ -1,7 +1,5 @@
 import { useState } from 'react'
 
-const CARD_BACK = 'https://cards.scryfall.io/normal/back/0/0/00000000-0000-0000-0000-000000000000.jpg'
-
 function formatDate(ts) {
   if (!ts) return ''
   return new Date(ts * 1000).toLocaleDateString('es-ES', {
@@ -24,16 +22,22 @@ function CardImage({ name, count }) {
       )}
 
       {failed ? (
-        <div className="absolute inset-0">
-          <img
-            src={CARD_BACK}
-            alt=""
-            className="w-full h-full object-cover rounded-md opacity-60"
-          />
-          <div className="absolute inset-0 flex items-center justify-center p-2">
-            <p className="text-[9px] text-zinc-300 text-center leading-tight font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+        <div
+          className="absolute inset-0 rounded-md flex items-center justify-center p-1.5 border border-zinc-700/20"
+          style={{
+            background: 'linear-gradient(145deg, #2a1a0e 0%, #3d2415 30%, #2a1a0e 60%, #1c1008 100%)',
+          }}
+        >
+          <div
+            className="w-full h-full rounded-[4px] flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(180deg, #3d2415 0%, #2a1a0e 40%, #3d2415 70%, #1c1008 100%)',
+              border: '1px solid rgba(100, 70, 40, 0.2)',
+            }}
+          >
+            <span className="text-[9px] text-zinc-300 text-center leading-tight font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] px-1">
               {name}
-            </p>
+            </span>
           </div>
         </div>
       ) : (
@@ -56,10 +60,30 @@ function CardImage({ name, count }) {
   )
 }
 
+function generateArenaDeck(commanders, mainboard) {
+  const lines = ['Deck']
+  for (const c of commanders) {
+    lines.push(`${c.count} ${c.name}`)
+  }
+  for (const c of mainboard) {
+    lines.push(`${c.count} ${c.name}`)
+  }
+  return lines.join('\n')
+}
+
 export default function DeckView({ tournament, onBack, onClose }) {
   const deck = tournament.winnerDeck
   const commanders = deck?.commanders || []
   const mainboard = deck?.mainboard || []
+  const [copied, setCopied] = useState(false)
+
+  function handleExport() {
+    const text = generateArenaDeck(commanders, mainboard)
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
 
   return (
     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 w-[calc(100%-32px)] max-w-sm">
@@ -130,10 +154,18 @@ export default function DeckView({ tournament, onBack, onClose }) {
           )}
         </div>
 
-        <div className="px-4 py-2 border-t border-zinc-800/60">
-          <p className="text-[10px] text-zinc-600 text-center">
+        <div className="px-4 py-2 border-t border-zinc-800/60 flex items-center justify-between">
+          <p className="text-[10px] text-zinc-600">
             Datos de <a href="https://topdeck.gg" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-400 underline underline-offset-2">TopDeck.gg</a>
           </p>
+          {deck && mainboard.length > 0 && (
+            <button
+              onClick={handleExport}
+              className="text-[10px] font-medium px-2 py-1 rounded bg-zinc-700/40 text-zinc-300 hover:bg-zinc-600/50 transition-colors cursor-pointer"
+            >
+              {copied ? '¡Copiado!' : 'Exportar a Arena'}
+            </button>
+          )}
         </div>
       </div>
     </div>

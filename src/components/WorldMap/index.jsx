@@ -1,20 +1,28 @@
 import { Suspense, useState, useCallback, useEffect } from 'react'
+import { AnimatePresence } from 'framer-motion'
 import { Canvas } from '@react-three/fiber'
 import GlobeScene from './GlobeScene'
 import TournamentCard from './TournamentCard'
 import LoadingCard from '../LoadingCard'
+import MapIntro from './MapIntro'
 
 export default function WorldMap({ onBack }) {
   const [selected, setSelected] = useState(null)
   const [loaded, setLoaded] = useState(false)
   const [camDist, setCamDist] = useState(20)
+  const [showIntro, setShowIntro] = useState(false)
 
   useEffect(() => {
     setCamDist(window.innerWidth < 640 ? 22 : 14)
+    setShowIntro(true)
   }, [])
 
   const handleReady = useCallback(() => {
     setLoaded(true)
+  }, [])
+
+  const handleDismissIntro = useCallback(() => {
+    setShowIntro(false)
   }, [])
 
   const handleSelectTournament = useCallback((pin) => {
@@ -63,6 +71,10 @@ export default function WorldMap({ onBack }) {
       >
         ← Volver
       </button>
+
+      <AnimatePresence>
+        {showIntro && <MapIntro onDismiss={handleDismissIntro} />}
+      </AnimatePresence>
 
       {selectedPin && (
         <TournamentCard pin={selectedPin} onClose={handleClose} />
